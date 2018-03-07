@@ -112,4 +112,3 @@ augroup autest
 	:autocmd filetype c :set cindent
 augroup end
 
-
