@@ -17,7 +17,7 @@
 
 augroup colors_earthmelon
 	:autocmd!
-	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkgreen"
+	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
 	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
 augroup end
 
@@ -81,7 +81,7 @@ hi	constant			ctermfg=darkred		ctermbg=black
 hi	statement			ctermfg=brown		ctermbg=black
 hi	special				ctermfg=darkred		ctermbg=black
 hi	specialkey			ctermfg=darkcyan	ctermbg=black
-hi	operator			ctermfg=cyan		ctermbg=black
+hi	operator			ctermfg=lightgreen		ctermbg=black
 hi	string				ctermfg=brown		ctermbg=black
 hi	number				ctermfg=red			ctermbg=black
 hi	identifier			ctermfg=darkcyan	ctermbg=black

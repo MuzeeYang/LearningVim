@@ -73,12 +73,17 @@ function! TabComplete()
 	if s:char == " "
 		return "\<backspace>\<tab>"
 	endif
-	for s:tmp in ["\<tab>",""]
-		if s:tmp == s:char
-			return "\<tab>"
+
+	let s:lineStr = getline('.')
+	let s:posCur = col('.')
+	let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_][ \t]*$", s:posCur - 2)
+	if s:endKeyWord != -1
+		if s:endKeyWord == s:posCur - 2
+			return "\<c-n>"
 		endif
-	endfor
-	return "\<c-n>"
+	endif
+	return "\<tab>"
+
 endfunction
 
 function! EmptyPairsJmp()
@@ -91,7 +96,7 @@ function! EmptyPairsJmp()
 	
 	let s:pattenPairs = '()\|[]\|{}\|""\|<>'.'\|'''
 	let s:startSearch = match(s:lineSearch,s:pattenPairs,s:startSearch - 1)
-	if s:startSearch > 0
+	if s:startSearch != -1
 		"echom s:lineSearch[s:startSearch]
 		call cursor(0,s:startSearch + 1)
 	else
@@ -104,6 +109,17 @@ function! FindSearchItem()
 	let @/=@f
 endfunction
 
+function! SaveFile()
+	if &readonly == 1 "readonly
+		let s:isSaveForce = input("This file is [OR], SAVE it by force or not (y/n)?")
+		if s:isSaveForce == 'y'
+			:w !sudo tee % >/dev/null
+		endif
+	else "noreadonly
+		:w
+	endif
+endfunction
+
 "beta debug
 :nnoremap <leader>rr :source $MYVIMRC<cr>
 iabbrev waht what
@@ -111,4 +127,5 @@ augroup autest
 	:autocmd!
 	:autocmd filetype c :set cindent
 augroup end
+
 
