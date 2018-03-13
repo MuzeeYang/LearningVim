@@ -1,4 +1,4 @@
-source ~/.vim/.earthmelon.vim
+"source ~/.vim/.earthmelon.vim
 syntax on
 set mouse=a
 set hlsearch nowrapscan scrolloff=7 number smartindent tabstop=4 softtabstop=4 shiftwidth=4 "expandtab 
@@ -62,21 +62,40 @@ let mapleader="`"
 :inoremap <c-h> <left>
 :inoremap <c-l> <right>
 
+:nnoremap S cw
+
 "ctags
 :nnoremap <leader>] <c-]> 
 :nnoremap <leader>} g] 
 :nnoremap <leader>[ <c-t> 
 
+"status line
+set cursorline
+set laststatus=2
+set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
+hi	user1				term=bold			cterm=bold
+hi	user1				ctermfg=white		ctermbg=red
+hi	statuslinenc		term=bold			cterm=bold
+hi	statuslinenc		ctermfg=black		ctermbg=grey
+hi	statusline			term=bold			cterm=bold
+hi	statusline			ctermfg=black		ctermbg=white
+
+augroup colors_earthmelon
+	:autocmd!
+	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
+	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
+augroup end
+
 "Functions
 function! TabComplete()
-	let s:char = getline('.')[col('.')-2]
-	if s:char == " "
-		return "\<backspace>\<tab>"
-	endif
-
 	let s:lineStr = getline('.')
 	let s:posCur = col('.')
-	let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_][ \t]*$", s:posCur - 2)
+
+	if s:posCur == len(s:lineStr) + 1 "pos at the end
+		let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_]$", s:posCur - 2)
+	else
+		let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_][^0-9a-zA-Z_]", s:posCur - 2)
+	endif
 	if s:endKeyWord != -1
 		if s:endKeyWord == s:posCur - 2
 			return "\<c-n>"
@@ -126,6 +145,9 @@ iabbrev waht what
 augroup autest
 	:autocmd!
 	:autocmd filetype c :set cindent
+	:autocmd filetype c,h :set tags=~/ctags,~/.vim/systags
+	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
+	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
 
 

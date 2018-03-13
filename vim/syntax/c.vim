@@ -18,18 +18,18 @@
 "custom c
 syn	match	cFunctions	"\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
 syn	match	cFunctions	"\<[a-zA-Z_][a-zA-Z_0-9]*\>\s*("me=e-1
-"syn	match	cOperators	"\v[\+-\*/\=\>\<\!\|\&\~]"
-syn	match	cOperators	"\v\+"
-syn	match	cOperators	"\v-"
-syn	match	cOperators	"\v\*"
-syn	match	cOperators	"\v/"
-syn	match	cOperators	"\v\="
-syn	match	cOperators	"\v\>"
-syn	match	cOperators	"\v\<"
-syn	match	cOperators	"\v\!"
-syn	match	cOperators	"\v\~"
-syn	match	cOperators	"\v\|"
-syn	match	cOperators	"\v\&"
-
+syn	match	cOperators	"[-+\*/=><!|&~?:]"
+"syn	match	cOperators	"\v\+"
+"syn	match	cOperators	"\v-"
+"syn	match	cOperators	"\v\*"
+"syn	match	cOperators	"\v/"
+"syn	match	cOperators	"\v\="
+"syn	match	cOperators	"\v\>"
+"syn	match	cOperators	"\v\<"
+"syn	match	cOperators	"\v\!"
+"syn	match	cOperators	"\v\~"
+"syn	match	cOperators	"\v\|"
+"syn	match	cOperators	"\v\&"
+"
 hi	cFunctions			ctermfg=lightblue	ctermbg=black
 hi	link	cOperators	Operator
