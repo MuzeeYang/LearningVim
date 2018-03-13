@@ -1,0 +1,153 @@
+"source ~/.vim/.earthmelon.vim
+syntax on
+set mouse=a
+set hlsearch nowrapscan scrolloff=7 number smartindent tabstop=4 softtabstop=4 shiftwidth=4 "expandtab 
+set fileencodings=ucs-bom,utf-8,cp20932,cp51932,cp932,cp20936,cp51936,cp54936,cp936,cp950,latin1
+let mapleader="`"
+
+"set auto pair
+:vnoremap () c()<esc>hpl
+:vnoremap [] c[]<esc>hpl
+:vnoremap "" c""<esc>hpl
+:vnoremap {} c{}<esc>hpl
+:vnoremap '' c''<esc>hpl
+:vnoremap <> c<><esc>hpl
+:vnoremap {{ c{<cr>}<esc>P
+":inoremap ( ()<ESC>i
+":inoremap ) <c-r>=ClosePair(')')<CR>
+":inoremap { {}<ESC>i
+":inoremap } <c-r>=ClosePair('}')<CR>
+":inoremap [ []<ESC>i
+":inoremap ] <c-r>=ClosePair(']')<CR>
+"function! ClosePair(char)
+"    if getline('.')[col('.') - 1] == a:char
+"   		return "\<Right>"
+"	else
+"		return a:char
+"	endif
+"endfunction
+
+"set tab to compeletion
+:inoremap <tab> <c-r>=TabComplete()<cr>
+:inoremap <leader><tab> <tab>
+:nnoremap <tab> <c-w>w
+
+"space select
+:nnoremap <space> viw
+:vnoremap <space> e
+:inoremap <leader><space> <c-r>=EmptyPairsJmp()<cr>
+:nnoremap <leader><space> i<c-r>=EmptyPairsJmp()<cr>
+
+"search highlight
+:vnoremap y "py
+:vnoremap f "fy:call FindSearchItem()<cr>
+
+"set fold
+:set foldmethod=syntax
+:set nofoldenable
+:nnoremap <F4> :set foldenable!<cr>:set foldenable?<cr>
+:nnoremap = zo
+:nnoremap - zc
+:nnoremap + zO
+:nnoremap _ zC
+
+"split
+:inoremap <leader>~ <esc>viwUea
+
+:nnoremap , <c-w>7<
+:nnoremap . <c-w>7>
+
+:nnoremap <c-j> <c-d>
+:nnoremap <c-k> <c-u>
+:inoremap <c-h> <left>
+:inoremap <c-l> <right>
+
+:nnoremap S cw
+
+"ctags
+:nnoremap <leader>] <c-]> 
+:nnoremap <leader>} g] 
+:nnoremap <leader>[ <c-t> 
+
+"status line
+set cursorline
+set laststatus=2
+set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
+hi	user1				term=bold			cterm=bold
+hi	user1				ctermfg=white		ctermbg=red
+hi	statuslinenc		term=bold			cterm=bold
+hi	statuslinenc		ctermfg=black		ctermbg=grey
+hi	statusline			term=bold			cterm=bold
+hi	statusline			ctermfg=black		ctermbg=white
+
+augroup colors_earthmelon
+	:autocmd!
+	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
+	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
+augroup end
+
+"Functions
+function! TabComplete()
+	let s:lineStr = getline('.')
+	let s:posCur = col('.')
+
+	if s:posCur == len(s:lineStr) + 1 "pos at the end
+		let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_]$", s:posCur - 2)
+	else
+		let s:endKeyWord = match(s:lineStr, "[0-9a-zA-Z_][^0-9a-zA-Z_]", s:posCur - 2)
+	endif
+	if s:endKeyWord != -1
+		if s:endKeyWord == s:posCur - 2
+			return "\<c-n>"
+		endif
+	endif
+	return "\<tab>"
+
+endfunction
+
+function! EmptyPairsJmp()
+	let s:startSearch = col('.')
+	let s:lineSearch = getline('.')
+	let s:rangeSearch = len(s:lineSearch)
+	if s:startSearch > s:rangeSearch
+		let s:startSearch = 1
+	endif
+	
+	let s:pattenPairs = '()\|[]\|{}\|""\|<>'.'\|'''
+	let s:startSearch = match(s:lineSearch,s:pattenPairs,s:startSearch - 1)
+	if s:startSearch != -1
+		"echom s:lineSearch[s:startSearch]
+		call cursor(0,s:startSearch + 1)
+	else
+		call cursor(0,s:rangeSearch + 1)
+	endif
+	return "\<right>"
+endfunction
+
+function! FindSearchItem()
+	let @/=@f
+endfunction
+
+function! SaveFile()
+	if &readonly == 1 "readonly
+		let s:isSaveForce = input("This file is [OR], SAVE it by force or not (y/n)?")
+		if s:isSaveForce == 'y'
+			:w !sudo tee % >/dev/null
+		endif
+	else "noreadonly
+		:w
+	endif
+endfunction
+
+"beta debug
+:nnoremap <leader>rr :source $MYVIMRC<cr>
+iabbrev waht what
+augroup autest
+	:autocmd!
+	:autocmd filetype c :set cindent
+	:autocmd filetype c,h :set tags=~/ctags,~/.vim/systags
+	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
+	:autocmd bufreadpost,bufread * :normal! '"
+augroup end
+
+
