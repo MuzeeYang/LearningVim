@@ -40,6 +40,7 @@ let mapleader="`"
 
 "search highlight
 :vnoremap y "py
+:vnoremap p "pp
 :vnoremap f "fy:call FindSearchItem()<cr>
 
 "set fold
@@ -61,6 +62,8 @@ let mapleader="`"
 :nnoremap <c-k> <c-u>
 :inoremap <c-h> <left>
 :inoremap <c-l> <right>
+:inoremap <c-j> <down>
+:inoremap <c-k> <up>
 
 :nnoremap S cw
 
@@ -84,6 +87,15 @@ augroup colors_earthmelon
 	:autocmd!
 	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
 	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
+augroup end
+
+"autocmd
+augroup auto_buffer
+	:autocmd!
+	:autocmd filetype c :set cindent
+	:autocmd filetype c,h :set tags=./ctags,~/ctags,~/.vim/systags
+	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
+	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
 
 "Functions
@@ -144,10 +156,6 @@ endfunction
 iabbrev waht what
 augroup autest
 	:autocmd!
-	:autocmd filetype c :set cindent
-	:autocmd filetype c,h :set tags=~/ctags,~/.vim/systags
-	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
-	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
 
 

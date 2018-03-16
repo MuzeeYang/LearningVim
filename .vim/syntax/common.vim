@@ -18,7 +18,7 @@
 
 let g:colors_name="earthmelon_8"
 
-set background=dark
+"set background=dark
 
 if version > 580
     hi clear
