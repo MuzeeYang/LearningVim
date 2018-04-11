@@ -1,4 +1,0 @@
-#costom add profile
-if [ -f ~/.myprofile ];then
-	. ~/.myprofile
-fi

@@ -12,7 +12,9 @@ let mapleader="`"
 :vnoremap {} c{}<esc>hpl
 :vnoremap '' c''<esc>hpl
 :vnoremap <> c<><esc>hpl
-:vnoremap {{ c{<cr>}<esc>P
+:vnoremap {{ c{<cr>}<esc>Pvi{>
+
+:nnoremap X :call ErasePire()<cr>
 ":inoremap ( ()<ESC>i
 ":inoremap ) <c-r>=ClosePair(')')<CR>
 ":inoremap { {}<ESC>i
@@ -67,6 +69,7 @@ let mapleader="`"
 
 :nnoremap S cw
 
+
 "ctags
 :nnoremap <leader>] <c-]> 
 :nnoremap <leader>} g] 
@@ -92,8 +95,8 @@ augroup end
 "autocmd
 augroup auto_buffer
 	:autocmd!
-	:autocmd filetype c :set cindent
-	:autocmd filetype c,h :set tags=./ctags,~/ctags,~/.vim/systags
+	:autocmd filetype c,cpp :set cindent
+	:autocmd filetype c,cpp :set tags=./ctags,~/ctags,~/.vim/systags
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
@@ -142,12 +145,69 @@ endfunction
 
 function! SaveFile()
 	if &readonly == 1 "readonly
-		let s:isSaveForce = input("This file is [OR], SAVE it by force or not (y/n)?")
+		let s:isSaveForce = input("This file is [RO], SAVE it by force or not (y/n)?")
 		if s:isSaveForce == 'y'
 			:w !sudo tee % >/dev/null
 		endif
 	else "noreadonly
 		:w
+	endif
+endfunction
+
+function! ErasePire()
+	let s:curByte = getline('.')[col('.')-1]
+	"echom s:curByte
+
+	if s:curByte == '('
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == ')'
+			:normal! x
+		else
+			:normal! f)x
+		endif
+	elseif s:curByte == ')'
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == '('
+			:normal! x
+		else
+			:normal! F(x
+		endif
+	elseif s:curByte == '['
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == ']'
+			:normal! x
+		else
+			:normal! f]x
+		endif
+	elseif s:curByte == ']'
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == '['
+			:normal! x
+		else
+			:normal! F[x
+		endif
+	elseif s:curByte == '{'
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == '}'
+			:normal! x
+		else
+			:normal! f}x
+		endif
+	elseif s:curByte == '}'
+		:normal! x
+		let s:curByte = getline('.')[col('.')-1]
+		if s:curByte == '{'
+			:normal! x
+		else
+			:normal! F{x
+		endif
+	else
+		:normal! X
 	endif
 endfunction
 
