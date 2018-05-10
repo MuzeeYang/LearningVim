@@ -1,6 +1,5 @@
 #include "comSort.h"
 
-
 void shellSort(T* arr, uint length)
 {
 	uint gap;
@@ -64,4 +63,37 @@ void quickSort(T* arr, uint length)
 	quickSort(arr+j+1, length-j-1);
 }
 
+
+void heapSort(T* arr, uint length)
+{
+	uint j;
+	uint par;
+	//construct heap
+	for(par = GET_PARENT(length-1); par+1 > 0; par--)
+	{
+		_heapAjust(arr, length, par);
+	}
+
+	for(j = length-1; j > 0; j--)
+	{
+		SWAP(arr[0], arr[j]);
+		_heapAjust(arr, j, 0);
+	}
+}
+
 //===============static function==================
+
+static void _heapAjust(T* arr, uint length, uint start)
+{
+	uint par, child;
+	for(par = start; (child = GET_LEFTCHLD(par)) < length; par = child)
+	{
+		if(child+1 < length && arr[child] < arr[child+1])
+			child++;
+
+		if(arr[par] < arr[child])
+			SWAP(arr[par], arr[child]);
+		else
+			break;
+	}
+}

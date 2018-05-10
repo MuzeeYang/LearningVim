@@ -70,11 +70,12 @@ cdw()
 	fi
 }
 
-proFILE=$(HOME)/.bashrc
+
+proFILE=$HOME/.bashrc
 if [ -f $proFILE ];then
 	isAdded=`cat $proFILE | grep "#costom add profile" | wc -l`
 	if [ $isAdded -eq 0 ];then
-		tail -5 .myprofile | head -4 >> $proFILE
+		tail -5 $(HOME)/.myprofile | head -4 >> $proFILE
 	fi
 fi
 

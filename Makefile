@@ -6,16 +6,15 @@ install:
 	@cp -v ./.vim/syntax/c.vim ~/.vim/syntax
 	@cp -v ./.vim/syntax/common.vim ~/.vim/syntax
 	@cp -v ./.myprofile ~/.myprofile
-	@source ~/.myprofile
 	ctags --fields=+iaS --extra=+q -R -f ~/.vim/systags /usr/include /usr/local/include
 	
 clean:
-	rm ~/.vim/vimrc
-	rm ~/.vim/syntax/c.vim
-	rm ~/.vim/syntax/common.vim
-	rm ~/.vim/systags
-	rm ~/.myprofile
-	rm -rf ~/shl || @echo ''
-	rm -rf ~/clang || @echo ''
+	@rm ~/.vim/vimrc
+	@rm ~/.vim/syntax/c.vim
+	@rm ~/.vim/syntax/common.vim
+	@rm ~/.vim/systags
+	@rm ~/.myprofile
+	@rm -rf ~/shl || @echo ''
+	@rm -rf ~/clang || @echo ''
 	@echo "remove the context under manually in [~/.bashrc] or [~/.profile]."
 	@cat ./proCache
