@@ -81,8 +81,6 @@ void heapSort(T* arr, uint length)
 	}
 }
 
-//===============static function==================
-
 static void _heapAjust(T* arr, uint length, uint start)
 {
 	uint par, child;
@@ -97,3 +95,46 @@ static void _heapAjust(T* arr, uint length, uint start)
 			break;
 	}
 }
+
+#ifdef __LISTSORT__
+void listSort(PTrainHead pListHead)
+{
+	PTrainHead pTreeRoot = deleteTrainNode(pListHead->next);
+
+	while(pListHead->next == pListHead)
+	{
+		_addTreeNode(deleteTrainNode(pListHead->next), pTreeRoot);
+	}
+	_getListFrmTree(pTreeRoot, pListHead);
+}
+
+static void _addTreeNode(PTrainNode pListNode, PTrainNode pTreeRoot)
+{
+	if(STRUCT_OF(pListNode)->data > STRUCT_OF(pTreeRoot)->data)
+	{
+		if(pTreeRoot->next == pTreeRoot)
+			pTreeRoot->next = pListNode;
+		else
+			_addTreeNode(pListNode, pTreeRoot->next);
+	}
+	else
+	{
+		if(pTreeRoot->prev == pTreeRoot)
+			pTreeRoot->prev = pListNode;
+		else
+			_addTreeNode(pListNode, pTreeRoot->prev);
+	}
+}
+
+static void _getListFrmTree(PTrainHead pTreeRoot, PTrainHead pListHead)
+{
+	PTrainNode tmpNode = pTreeRoot->next;
+	if(pTreeRoot->prev != pTreeRoot)
+		_getListFrmTree(pTreeRoot->prev, pListHead);
+
+	insertTrainNodeFront(pListHead, pTreeRoot);
+
+	if(tmpNode != pTreeRoot)
+		_getListFrmTree(tmpNode, pListHead);
+}
+#endif //__LISTSORT__
