@@ -1,28 +1,46 @@
 #include "string.h"
 
-int hexStr2Num(char* str)
+int _hexChar2Num(char c)
+{
+	if('0' <= c && c <= '9')
+		return (c - '0');
+	else if('A' <= c && c <= 'F')
+		return (c - 'A' + 10);
+	else if('a' <= c && c <= 'f')
+		return (c - 'a' + 10);
+	else
+		return -1;
+}
+
+int hexStr2Num(char* str, int* num)
 {
 	int i;
 	int ret = 0;
-	int limit = (strlen(str) < 8)? strlen(str): 8;
-	
-	for(i = 0; i < limit; i++)
-	{
-		ret *= 0x10;
+	int limit = 0;
+	int tmp;
 
-		if('0' <= str[i] && str[i] <= '9')
-			ret += (str[i] - '0');
-		else if('A' <= str[i] && str[i] <= 'F')
-			ret += (str[i] - 'A' + 10);
-		else if('a' <= str[i] && str[i] <= 'f')
-			ret += (str[i] - 'a' + 10);
+	if(!*str)
+		return 0;
+
+	while(*str == 10 || *str == 9 || *str == 32)str++;
+	limit = (strlen(str) < 8)? strlen(str): 8;
+	
+	i = 0;
+	while((tmp = _hexChar2Num(str[i++])) >= 0)
+	{
+		ret <<= 4;
+		ret |= tmp;
 	}
-	return ret;
+	*num = ret;
+	return i;
 }
 
 int num2HexStr(int num, char* str)
 {
 	int i = 8,j,tmp;
+
+	if(!num)
+		return 0;
 
 	while(!((num >> ((--i)*4)) & 0xf));
 

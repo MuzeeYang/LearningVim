@@ -1,7 +1,7 @@
 #ifndef __COMSORT_H__
 #define __COMSORT_H__
 
-typedef int T;
+typedef short T;
 typedef unsigned int uint;
 
 #define SWAP_XOR(x,y) do{x = x^y; y = x^y; x = x^y;}while(0)
