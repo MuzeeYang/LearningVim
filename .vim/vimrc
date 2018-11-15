@@ -13,24 +13,10 @@ let mapleader="`"
 :vnoremap '' c''<esc>hpl
 :vnoremap <> c<><esc>hpl
 :vnoremap {{ c{<cr>}<esc>Pvi{>
+:nnoremap X :call ErasePire()<cr>
 
 "save file
 :nnoremap <leader>s :call SaveFile()<cr>
-
-":nnoremap X :call ErasePire()<cr>
-":inoremap ( ()<ESC>i
-":inoremap ) <c-r>=ClosePair(')')<CR>
-":inoremap { {}<ESC>i
-":inoremap } <c-r>=ClosePair('}')<CR>
-":inoremap [ []<ESC>i
-":inoremap ] <c-r>=ClosePair(']')<CR>
-"function! ClosePair(char)
-"    if getline('.')[col('.') - 1] == a:char
-"   		return "\<Right>"
-"	else
-"		return a:char
-"	endif
-"endfunction
 
 "set tab to compeletion
 :inoremap <tab> <c-r>=TabComplete()<cr>
@@ -63,13 +49,12 @@ let mapleader="`"
 :nnoremap <leader>} g] 
 :nnoremap <leader>[ <c-t> 
 
-
-"split
+"switch upper/lower
 :inoremap <leader>~ <esc>viw~ea
 
+"scroll page
 :nnoremap , <c-w>7<
 :nnoremap . <c-w>7>
-
 :nnoremap <c-j> <c-d>
 :nnoremap <c-k> <c-u>
 :inoremap <c-h> <left>
@@ -77,9 +62,10 @@ let mapleader="`"
 :inoremap <c-j> <down>
 :inoremap <c-k> <up>
 
+"split
 :nnoremap U <c-t>
 :nnoremap S cw
-
+:inoremap `` `
 
 
 "status line
@@ -139,11 +125,10 @@ function! EmptyPairsJmp()
 	if s:startSearch > s:rangeSearch
 		let s:startSearch = 1
 	endif
-	
+
 	let s:pattenPairs = '()\|[]\|{}\|""\|<>\|'''''
 	let s:startSearch = match(s:lineSearch,s:pattenPairs,s:startSearch - 1)
 	if s:startSearch != -1
-		"echom s:lineSearch[s:startSearch]
 		call cursor(0,s:startSearch + 1)
 	else
 		call cursor(0,s:rangeSearch + 1)
@@ -215,7 +200,7 @@ function! GetLinePairs()
 		elseif s:lline[s:idx] == "'"
 			call DealSingQua(s:lline[s:idx], s:idx)
 		elseif s:isInStr != 0		" if cursor in the \"\" or \'\', do not detect others
-			"echo "do nothing"
+			"echo 'do nothing'
 		elseif s:lline[s:idx] == '{' || s:lline[s:idx] == '}'
 			call DealBigQua(s:lline[s:idx], s:idx)
 		elseif s:lline[s:idx] == '[' || s:lline[s:idx] == ']'
@@ -330,10 +315,38 @@ function! DealSingQua(ch, idx)
 	endif
 endfunction
 
+function! ErasePairs()
+	let s:lno = line('.')
+	if s:lno != g:LNO		" same line do nothing
+		let g:LNO = s:lno
+		call GetLinePairs()
+	endif
+
+	let s:curPos = col('.') - 1
+	for s:tpair in g:PAIRS
+		if len(s:tpair) != 3
+			continue
+		endif
+
+		if s:tpair[1] == s:curPos
+			:normal! r 
+			call cursor(0, s:tpair[2]+1)
+			:normal! r 
+			return
+		elseif s:tpair[2] == s:curPos
+			:normal! r 
+			call cursor(0, s:tpair[1]+1)
+			:normal! r 
+			return
+		endif
+	endfor
+
+	:normal! x
+endfunction
 
 "beta debug
 :nnoremap <leader>rr :source $MYVIMRC<cr>
-:nnoremap <leader>tt :call GetLinePairs()<cr>
+:nnoremap <leader>tt :call TestFunc()<cr>
 iabbrev waht what
 augroup autest
 	:autocmd!

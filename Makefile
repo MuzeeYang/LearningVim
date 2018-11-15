@@ -14,7 +14,5 @@ clean:
 	@rm ~/.vim/syntax/common.vim
 	@rm ~/.vim/systags
 	@rm ~/.myprofile
-	@rm -rf ~/shl || @echo ''
-	@rm -rf ~/clang || @echo ''
-	@echo "remove the context under manually in [~/.bashrc] or [~/.profile]."
 	@cat ./proCache
+	@echo "remove the context under manually in [~/.bashrc] or [~/.profile]."
