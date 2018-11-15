@@ -14,7 +14,10 @@ let mapleader="`"
 :vnoremap <> c<><esc>hpl
 :vnoremap {{ c{<cr>}<esc>Pvi{>
 
-:nnoremap X :call ErasePire()<cr>
+"save file
+:nnoremap <leader>s :call SaveFile()<cr>
+
+":nnoremap X :call ErasePire()<cr>
 ":inoremap ( ()<ESC>i
 ":inoremap ) <c-r>=ClosePair(')')<CR>
 ":inoremap { {}<ESC>i
@@ -38,7 +41,8 @@ let mapleader="`"
 :nnoremap <space> viw
 :vnoremap <space> e
 :inoremap <leader><space> <c-r>=EmptyPairsJmp()<cr>
-:nnoremap <leader><space> i<c-r>=EmptyPairsJmp()<cr>
+:nnoremap <leader><space> :call AllPairsJmp()<cr>
+:vnoremap <leader><space> <esc>:call AllPairsJmp()<cr>
 
 "search highlight
 :vnoremap y "py
@@ -54,8 +58,14 @@ let mapleader="`"
 :nnoremap + zO
 :nnoremap _ zC
 
+"ctags
+:nnoremap <leader>] <c-]> 
+:nnoremap <leader>} g] 
+:nnoremap <leader>[ <c-t> 
+
+
 "split
-:inoremap <leader>~ <esc>viwUea
+:inoremap <leader>~ <esc>viw~ea
 
 :nnoremap , <c-w>7<
 :nnoremap . <c-w>7>
@@ -67,13 +77,10 @@ let mapleader="`"
 :inoremap <c-j> <down>
 :inoremap <c-k> <up>
 
+:nnoremap U <c-t>
 :nnoremap S cw
 
 
-"ctags
-:nnoremap <leader>] <c-]> 
-:nnoremap <leader>} g] 
-:nnoremap <leader>[ <c-t> 
 
 "status line
 set cursorline
@@ -99,9 +106,14 @@ augroup auto_buffer
 	:autocmd filetype c,cpp :set tags=./ctags,~/ctags,~/.vim/systags
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
+	:autocmd TextChanged,TextChangedI * :let g:LNO = -1
 augroup end
 
 "Functions
+let g:LNO = -1
+let g:PAIRS = []
+let g:PCS = 0
+
 function! TabComplete()
 	let s:lineStr = getline('.')
 	let s:posCur = col('.')
@@ -128,7 +140,7 @@ function! EmptyPairsJmp()
 		let s:startSearch = 1
 	endif
 	
-	let s:pattenPairs = '()\|[]\|{}\|""\|<>'.'\|'''
+	let s:pattenPairs = '()\|[]\|{}\|""\|<>\|'''''
 	let s:startSearch = match(s:lineSearch,s:pattenPairs,s:startSearch - 1)
 	if s:startSearch != -1
 		"echom s:lineSearch[s:startSearch]
@@ -154,68 +166,176 @@ function! SaveFile()
 	endif
 endfunction
 
-function! ErasePire()
-	let s:curByte = getline('.')[col('.')-1]
-	"echom s:curByte
+function! AllPairsJmp()
+	let s:lno = line('.')
+	if s:lno != g:LNO		" same line do nothing
+		let g:LNO = s:lno
+		call GetLinePairs()
+	endif
 
-	if s:curByte == '('
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == ')'
-			:normal! x
-		else
-			:normal! f)x
+	let s:plength = len(g:PAIRS)
+	let s:vldidx = g:PCS
+	while s:vldidx < s:plength
+		if len(g:PAIRS[s:vldidx]) == 3			" pairs complete
+			break
 		endif
-	elseif s:curByte == ')'
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == '('
-			:normal! x
-		else
-			:normal! F(x
-		endif
-	elseif s:curByte == '['
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == ']'
-			:normal! x
-		else
-			:normal! f]x
-		endif
-	elseif s:curByte == ']'
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == '['
-			:normal! x
-		else
-			:normal! F[x
-		endif
-	elseif s:curByte == '{'
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == '}'
-			:normal! x
-		else
-			:normal! f}x
-		endif
-	elseif s:curByte == '}'
-		:normal! x
-		let s:curByte = getline('.')[col('.')-1]
-		if s:curByte == '{'
-			:normal! x
-		else
-			:normal! F{x
-		endif
+		let s:vldidx = s:vldidx + 1
+	endwhile
+
+	let g:PCS = s:vldidx + 1		" update pcs
+	if g:PCS >= s:plength
+		let g:PCS = 0
+	endif
+
+	if s:vldidx == s:plength		" empty pairs or all invilid pairs
+		return
+	endif
+
+	if g:PAIRS[s:vldidx][1] + 1 == g:PAIRS[s:vldidx][2]			" empty pairs
+		call cursor(0, g:PAIRS[s:vldidx][2]+1)
+		":normal! i
 	else
-		:normal! X
+		call cursor(0, g:PAIRS[s:vldidx][2])
+		execute ":normal! vi".g:PAIRS[s:vldidx][0]
 	endif
 endfunction
 
+function! GetLinePairs()
+	let g:PAIRS = []
+	let g:PCS = 0
+	let s:lline = getline('.')
+	let s:idx = 0
+	let s:llength = len(s:lline)
+	let s:isInStr = 0		" flag for \",\'
+	while s:idx < s:llength
+		if s:lline[s:idx] == '\'
+			let s:idx = s:idx + 1
+		elseif s:lline[s:idx] == '"'
+			call DealDaulQua(s:lline[s:idx], s:idx)
+		elseif s:lline[s:idx] == "'"
+			call DealSingQua(s:lline[s:idx], s:idx)
+		elseif s:isInStr != 0		" if cursor in the \"\" or \'\', do not detect others
+			"echo "do nothing"
+		elseif s:lline[s:idx] == '{' || s:lline[s:idx] == '}'
+			call DealBigQua(s:lline[s:idx], s:idx)
+		elseif s:lline[s:idx] == '[' || s:lline[s:idx] == ']'
+			call DealMidQua(s:lline[s:idx], s:idx)
+		elseif s:lline[s:idx] == '(' || s:lline[s:idx] == ')'
+			call DealLittQua(s:lline[s:idx], s:idx)
+		elseif s:lline[s:idx] == '<' || s:lline[s:idx] == '>'
+			call DealTipQua(s:lline[s:idx], s:idx)
+		endif
+		let s:idx = s:idx + 1
+	endwhile
+	echo g:PAIRS
+endfunction
+
+function! DealBigQua(ch, idx)
+	if a:ch == '{'
+		call add(g:PAIRS, [a:ch, a:idx])
+	else
+		let s:pairCursor = len(g:PAIRS)
+		while s:pairCursor > 0
+			let s:pairCursor = s:pairCursor - 1
+			if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == '{'
+				call add(g:PAIRS[s:pairCursor], a:idx)
+				break
+			endif
+		endwhile
+	endif
+endfunction
+
+function! DealMidQua(ch, idx)
+	if a:ch == '['
+		call add(g:PAIRS, [a:ch, a:idx])
+	else
+		let s:pairCursor = len(g:PAIRS)
+		while s:pairCursor > 0
+			let s:pairCursor = s:pairCursor - 1
+			if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == '['
+				call add(g:PAIRS[s:pairCursor], a:idx)
+				break
+			endif
+		endwhile
+	endif
+endfunction
+
+function! DealLittQua(ch, idx)
+	if a:ch == '('
+		call add(g:PAIRS, [a:ch, a:idx])
+	else
+		let s:pairCursor = len(g:PAIRS)
+		while s:pairCursor > 0
+			let s:pairCursor = s:pairCursor - 1
+			if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == '('
+				call add(g:PAIRS[s:pairCursor], a:idx)
+				break
+			endif
+		endwhile
+	endif
+endfunction
+
+function! DealTipQua(ch, idx)
+	if a:ch == '<'
+		call add(g:PAIRS, [a:ch, a:idx])
+	else
+		let s:pairCursor = len(g:PAIRS)
+		while s:pairCursor > 0
+			let s:pairCursor = s:pairCursor - 1
+			if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == '<'
+				call add(g:PAIRS[s:pairCursor], a:idx)
+				break
+			endif
+		endwhile
+	endif
+endfunction
+
+function! DealDaulQua(ch, idx)
+	if s:isInStr != 0 && s:isInStr != 2
+		return
+	endif
+
+	let s:pairCursor = len(g:PAIRS) - 1
+	while s:pairCursor >= 0
+		if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == '"'
+			call add(g:PAIRS[s:pairCursor], a:idx)
+			let s:isInStr = 0
+			break
+		endif
+		let s:pairCursor = s:pairCursor - 1
+	endwhile
+	if s:pairCursor < 0
+		call add(g:PAIRS, [a:ch, a:idx])
+		let s:isInStr = 2
+	endif
+endfunction
+
+function! DealSingQua(ch, idx)
+	if s:isInStr != 0 && s:isInStr != 1
+		return
+	endif
+
+	let s:pairCursor = len(g:PAIRS) - 1
+	while s:pairCursor >= 0
+		if len(g:PAIRS[s:pairCursor]) == 2 && g:PAIRS[s:pairCursor][0] == "'"
+			call add(g:PAIRS[s:pairCursor], a:idx)
+			let s:isInStr = 0
+			break
+		endif
+		let s:pairCursor = s:pairCursor - 1
+	endwhile
+	if s:pairCursor < 0
+		call add(g:PAIRS, [a:ch, a:idx])
+		let s:isInStr = 1
+	endif
+endfunction
+
+
 "beta debug
 :nnoremap <leader>rr :source $MYVIMRC<cr>
+:nnoremap <leader>tt :call GetLinePairs()<cr>
 iabbrev waht what
 augroup autest
 	:autocmd!
 augroup end
-
 
