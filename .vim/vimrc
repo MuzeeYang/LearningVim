@@ -30,9 +30,12 @@ let mapleader="`"
 :nnoremap <leader><space> :call AllPairsJmp()<cr>
 :vnoremap <leader><space> <esc>:call AllPairsJmp()<cr>
 
+"sys clipboard
+:vnoremap <leader>p "+p
+:nnoremap <leader>p "+p
+:nnoremap <leader>P "+P
+
 "search highlight
-:vnoremap y "py
-:vnoremap p "pp
 :vnoremap f "fy:call FindSearchItem()<cr>
 
 "set fold
@@ -62,7 +65,7 @@ let mapleader="`"
 :inoremap <c-j> <down>
 :inoremap <c-k> <up>
 
-"split
+"others
 :nnoremap U <c-t>
 :nnoremap S cw
 :inoremap `` `
@@ -93,6 +96,7 @@ augroup auto_buffer
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
 	:autocmd TextChanged,TextChangedI * :let g:LNO = -1
+	:autocmd TextYankPost * :call LetSysClib()
 augroup end
 
 "Functions
@@ -342,6 +346,12 @@ function! ErasePairs()
 	endfor
 
 	:normal! x
+endfunction
+
+function! LetSysClib()
+	if len(@") != 1
+		let @+ = @"
+	endif
 endfunction
 
 "beta debug
