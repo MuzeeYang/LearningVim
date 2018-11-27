@@ -13,7 +13,7 @@ let mapleader="`"
 :vnoremap '' c''<esc>hpl
 :vnoremap <> c<><esc>hpl
 :vnoremap {{ c{<cr>}<esc>Pvi{>
-:nnoremap X :call ErasePire()<cr>
+:nnoremap X :call ErasePairs()<cr>
 
 "save file
 :nnoremap <leader>s :call SaveFile()<cr>
@@ -180,11 +180,8 @@ function! AllPairsJmp()
 		return
 	endif
 
-	if g:PAIRS[s:vldidx][1] + 1 == g:PAIRS[s:vldidx][2]			" empty pairs
-		call cursor(0, g:PAIRS[s:vldidx][2]+1)
-		":normal! i
-	else
-		call cursor(0, g:PAIRS[s:vldidx][2])
+	call cursor(0, g:PAIRS[s:vldidx][2]+1)
+	if g:PAIRS[s:vldidx][1] + 1 != g:PAIRS[s:vldidx][2]			" empty pairs
 		execute ":normal! vi".g:PAIRS[s:vldidx][0]
 	endif
 endfunction
