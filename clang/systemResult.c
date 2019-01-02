@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		read(pipeFd[0], buffer, sizeof(buffer)))
+		read(pipeFd[0], buffer, sizeof(buffer))
 		waitpid(pid, NULL, 0);
 	}
 	

@@ -1,8 +1,17 @@
-#include "comSort.h"
+#include "skiSort.h"
 
-void shellSort(T* arr, uint length)
+void reverseArr(T* arr, uint32 length)
 {
-	uint gap;
+	uint32 i, j;
+	for(i = 0, j = length-1; i < j; i++, j--)
+	{
+		SWAP(arr[i], arr[j]);
+	}
+}
+
+void shellSort(T* arr, uint32 length)
+{
+	uint32 gap;
 	int i, j;
 	T temp;
 
@@ -20,9 +29,9 @@ void shellSort(T* arr, uint length)
 	}
 }
 
-void bubbleSort(T* arr, uint length)
+void bubbleSort(T* arr, uint32 length)
 {
-	uint i, j;
+	uint32 i, j;
 	for(i = 0; i < length; i++)
 	{
 		for(j = i; j > 0; j--)
@@ -36,12 +45,12 @@ void bubbleSort(T* arr, uint length)
 }
 
 
-void quickSort(T* arr, uint length)
+void quickSort(T* arr, uint32 length)
 {
 	if(length < 2)
 		return;
 
-	uint i, j;
+	uint32 i, j;
 	i = 0;
 	j = length;
 
@@ -64,10 +73,10 @@ void quickSort(T* arr, uint length)
 }
 
 
-void heapSort(T* arr, uint length)
+void heapSort(T* arr, uint32 length)
 {
-	uint j;
-	uint par;
+	uint32 j;
+	uint32 par;
 	//construct heap
 	for(par = GET_PARENT(length-1); par+1 > 0; par--)
 	{
@@ -81,9 +90,9 @@ void heapSort(T* arr, uint length)
 	}
 }
 
-static void _heapAjust(T* arr, uint length, uint start)
+static void _heapAjust(T* arr, uint32 length, uint32 start)
 {
-	uint par, child;
+	uint32 par, child;
 	for(par = start; (child = GET_LEFTCHLD(par)) < length; par = child)
 	{
 		if(child+1 < length && arr[child] < arr[child+1])
