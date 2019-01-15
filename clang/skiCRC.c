@@ -7,7 +7,7 @@ width_t* crcGetTable()
 	return crcTable;
 }
 
-void crcReverse(uint8 *data, uint32 length)
+void crcReverseBytes(uint8 *data, uint32 length)
 {
 	uint8 tmp;
 	int i, j;
@@ -16,6 +16,18 @@ void crcReverse(uint8 *data, uint32 length)
 		tmp = data[i];
 		data[i] = data[j];
 		data[j] = tmp;
+	}
+}
+
+width_t crcReverseBits(width_t data)
+{
+	uint32 len = sizeof(data) * 8;
+	width_t res = 0;
+	while(len--)
+	{
+		res <<= 1;
+		res |= data & 0x01;
+		data >>= 1;
 	}
 }
 

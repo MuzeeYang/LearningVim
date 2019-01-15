@@ -37,4 +37,11 @@ typedef signed char sint8;
 #define NULL ((void*)0)
 #endif
 
+#define SWAP_XOR(x,y) do{if((x) != (y))(x)=(x)^(y), (y)=(x)^(y), (x)=(x)^(y);}while(0)
+#define SWAP_TMP(x,y) do{typeof(x) _x = x; x = y; y = _x;}while(0)
+
+#define SWAP(x,y) SWAP_TMP(x,y)
+
+#define CONTAINER_OF(addr, type, name) ((type*)((unsigned long)addr - (unsigned long)(&((type*)0)->name)))
+
 #endif //utypes.h

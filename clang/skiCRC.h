@@ -35,6 +35,7 @@ typedef uint32 width_t;
 void crcInit(void);
 width_t crcCompute(uint8* data, uint32 length, width_t initVal);
 
-width_t* crcGetTable();
-void crcReverse();
+width_t* crcGetTable(void);
+void crcReverseBytes(uint8 *data, uint32 length);
+width_t crcReverseBits(width_t data);
 #endif // skiCRC.h
