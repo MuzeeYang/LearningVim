@@ -7,9 +7,9 @@ typedef struct _listTrain
 	struct _listTrain* next;
 }TTrainNode, *PTrainNode;
 
-typedef int (*LISTSORT_FUNC)(PTrainNode, PTrainNode);
+typedef int (*LISTCMP_FUNC)(PTrainNode, PTrainNode);
 
-#define DECLARE_HEAD(name) TTrainNode name = {&name, &name}
+#define DECLARE_HEAD_LIST(name) TTrainNode name = {&name, &name}
 
 #define IS_EMPTY_LIST(pHead) ((pHead)->next == (pHead))
 #define FOR_EACH(pHead, cursor) for(cursor = (pHead)->next; cursor != (pHead); cursor = cursor->next)
@@ -124,10 +124,10 @@ static inline void catTrainNodes(PTrainNode desthead, PTrainNode sourhead)
 	__initNode(sourhead);
 }
 
-void sortInsert(PTrainNode pHead, LISTSORT_FUNC cmpFunc);
-void sortMerge(PTrainNode pHead, LISTSORT_FUNC cmpFunc);
+void sortInsert(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
+void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void pushList(PTrainNode pHead, PTrainNode pNode);
-PTrainNode popList(pHead);
-PTrainNode getFirstList(PTrainNode pHead);
+PTrainNode popList(PTrainNode pHead);
+PTrainNode beheadList(PTrainNode pHead);
 
 #endif //TrainNode.h

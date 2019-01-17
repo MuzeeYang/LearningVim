@@ -1,6 +1,6 @@
 #include "skiTree.h"
 
-static PTreeNode __insert_adjust(PTreeNode pRoot, PTreeNode pNode)
+static void __insert_adjust(PTreeRoot pRoot, PTreeNode pNode)
 {
 	PTreeNode parent, gparent, uncle;
 	while(!IS_ROOT_TREE(pNode)){
@@ -65,19 +65,18 @@ static PTreeNode __insert_adjust(PTreeNode pRoot, PTreeNode pNode)
 
 	if(IS_ROOT_TREE(pNode)){
 		SET_BLACK_COLOR_TREE(pNode);
-		return pNode;
-	}else
-		return pRoot;
+		pRoot->root = pNode;
+	}
 }
 
-static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
+static void __erase_adjust(PTreeRoot pRoot, PTreeNode pNode)
 {
 	if(GET_COLOR_TREE(pNode) == RB_RED)
-		return pRoot;
+		return;
 
-	PTreeNode parent, sibling, lnephew, rnephew, fRoot;
+	PTreeNode parent, sibling, lnephew, rnephew, root;
 
-	fRoot = pRoot;
+	root = pRoot->root;
 	while(!IS_ROOT_TREE(pNode)){
 		parent = GET_PARENT_TREE(pNode);
 		printf_debug("%d\n", IS_LEFT_CHILD_TREE(pNode));
@@ -95,7 +94,7 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 			if(GET_COLOR_TREE(sibling) == RB_RED){
 				SET_RED_COLOR_TREE(parent);
 				SET_BLACK_COLOR_TREE(sibling);
-				fRoot = rotate_rbnode_left(parent);
+				root = rotate_rbnode_left(parent);
 				sibling = parent->rb_right;
 			}
 
@@ -120,7 +119,7 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 				SET_COLOR_TREE(sibling, GET_COLOR_TREE(parent));
 				SET_BLACK_COLOR_TREE(parent);
 				SET_BLACK_COLOR_TREE(rnephew);
-				fRoot = rotate_rbnode_left(parent);
+				root = rotate_rbnode_left(parent);
 				break;
 			}
 
@@ -129,7 +128,7 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 			if(GET_COLOR_TREE(lnephew) == RB_RED){
 				SET_RED_COLOR_TREE(sibling);
 				SET_BLACK_COLOR_TREE(lnephew);
-				fRoot = rotate_rbnode_right(sibling);
+				root = rotate_rbnode_right(sibling);
 				continue;
 			}
 
@@ -145,7 +144,7 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 			if(GET_COLOR_TREE(sibling) == RB_RED){
 				SET_RED_COLOR_TREE(parent);
 				SET_BLACK_COLOR_TREE(sibling);
-				fRoot = rotate_rbnode_right(parent);
+				root = rotate_rbnode_right(parent);
 				sibling = parent->rb_left;
 			}
 
@@ -168,7 +167,7 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 				SET_COLOR_TREE(sibling, GET_COLOR_TREE(parent));
 				SET_BLACK_COLOR_TREE(parent);
 				SET_BLACK_COLOR_TREE(lnephew);
-				fRoot = rotate_rbnode_right(parent);
+				root = rotate_rbnode_right(parent);
 				break;
 			}
 
@@ -176,26 +175,25 @@ static PTreeNode __erase_adjust(PTreeNode pRoot, PTreeNode pNode)
 			if(GET_COLOR_TREE(sibling) && GET_COLOR_TREE(rnephew) == RB_RED){
 				SET_RED_COLOR_TREE(sibling);
 				SET_BLACK_COLOR_TREE(rnephew);
-				fRoot = rotate_rbnode_left(sibling);
+				root = rotate_rbnode_left(sibling);
 				continue;
 			}
 		}
 	}
 
-	if(IS_ROOT_TREE(fRoot))
-		return fRoot;
-	else
-		return pRoot;
+	if(IS_ROOT_TREE(root))
+		pRoot->root = root;
 }
 
-static PTreeNode __insert_deal(PTreeNode pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
+static void __insert_deal(PTreeRoot pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
 {
-	if(pRoot == NULL){
+	if(pRoot->root == NULL){
 		SET_ROOT_TREE(pNode);
-		return pNode;
+		pRoot->root = pNode;
+		return;
 	}
 
-	PTreeNode root = pRoot;
+	PTreeNode root = pRoot->root;
 	while(1){
 		if(cmpFunc(pNode, root) <= 0){
 			if(root->rb_left){
@@ -213,95 +211,86 @@ static PTreeNode __insert_deal(PTreeNode pRoot, PTreeNode pNode, TREECMP_FUNC cm
 			break;
 		}
 	}
-	return pRoot;
 }
 
-static PTreeNode __erase_aim(PTreeNode pRoot, PTreeNode pNode)
+static void __erase_aim(PTreeRoot pRoot, PTreeNode pNode)
 {
 	if(pNode->rb_left && pNode->rb_right){
 		PTreeNode pCursor = pNode->rb_left;
-		while(1){
-			if(pCursor->rb_right){
-				pCursor = pCursor->rb_right;
-			}else{
-				//swap_rbnode(pCursor, pNode)
-				if(pCursor == pNode->rb_left){
-					add_rbnode_left(pNode, pCursor->rb_left);
-					add_rbnode_right(pCursor, pNode->rb_right);
-					pNode->rb_right = NULL;
-					swap_parent_rbnode(GET_PARENT_TREE(pNode), pNode, pCursor, pCursor);
-				}else{
-					add_rbnode_right(pCursor, pNode->rb_right);
-					pNode->rb_right = pCursor->rb_left;
-					add_rbnode_left(pCursor, pNode->rb_left);
-					add_rbnode_left(pNode, pNode->rb_right);
-					pNode->rb_right = NULL;
-					swap_parent_rbnode(GET_PARENT_TREE(pNode), pNode, GET_PARENT_TREE(pCursor), pCursor);
-				}
+		while(pCursor->rb_right)pCursor = pCursor->rb_right;
 
-				//swap color
-				if(GET_COLOR_TREE(pNode)){
-					SET_COLOR_TREE(pNode, GET_COLOR_TREE(pCursor));
-					SET_BLACK_COLOR_TREE(pCursor);
-				}else{
-					SET_COLOR_TREE(pNode, GET_COLOR_TREE(pCursor));
-					SET_RED_COLOR_TREE(pCursor);
-				}
-
-
-				if(IS_ROOT_TREE(pCursor))
-					pRoot = pCursor;
-
-				break;
-			}
+		//swap_rbnode(pCursor, pNode)
+		if(pCursor == pNode->rb_left){
+			add_rbnode_left(pNode, pCursor->rb_left);
+			add_rbnode_right(pCursor, pNode->rb_right);
+			pNode->rb_right = NULL;
+			swap_parent_rbnode(GET_PARENT_TREE(pNode), pNode, pCursor, pCursor);
+		}else{
+			add_rbnode_right(pCursor, pNode->rb_right);
+			pNode->rb_right = pCursor->rb_left;
+			add_rbnode_left(pCursor, pNode->rb_left);
+			add_rbnode_left(pNode, pNode->rb_right);
+			pNode->rb_right = NULL;
+			swap_parent_rbnode(GET_PARENT_TREE(pNode), pNode, GET_PARENT_TREE(pCursor), pCursor);
 		}
+
+		//swap color
+		if(GET_COLOR_TREE(pNode)){
+			SET_COLOR_TREE(pNode, GET_COLOR_TREE(pCursor));
+			SET_BLACK_COLOR_TREE(pCursor);
+		}else{
+			SET_COLOR_TREE(pNode, GET_COLOR_TREE(pCursor));
+			SET_RED_COLOR_TREE(pCursor);
+		}
+
+
+		if(IS_ROOT_TREE(pCursor))
+			pRoot->root = pCursor;
+
 	}
-	return pRoot;
 }
 
-static PTreeNode __erase_deal(PTreeNode pRoot, PTreeNode pNode)
+static void __erase_deal(PTreeRoot pRoot, PTreeNode pNode)
 {
-	if(pRoot == pNode){
+	if(pRoot->root == pNode){
 		if(pNode->rb_left)
-			pRoot = pNode->rb_left;
+			pRoot->root = pNode->rb_left;
 		else if(pNode->rb_right)
-			pRoot = pNode->rb_right;
+			pRoot->root = pNode->rb_right;
 		else
-			pRoot = NULL;
+			pRoot->root = NULL;
 	}
 
 	delete_rbnode(pNode);
-	return pRoot;
 }
 
-PTreeNode insertRBLeaf(PTreeNode pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
+void insertRBLeaf(PTreeRoot pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
 {
-	pRoot = __insert_deal(pRoot, pNode, cmpFunc);
-	pRoot = __insert_adjust(pRoot, pNode);
-	return pRoot;
+	__insert_deal(pRoot, pNode, cmpFunc);
+	__insert_adjust(pRoot, pNode);
 }
 
-PTreeNode eraseRBLeaf(PTreeNode pRoot, PTreeNode pNode)
+void eraseRBLeaf(PTreeRoot pRoot, PTreeNode pNode)
 {
-	pRoot = __erase_aim(pRoot, pNode);
-	pRoot = __erase_adjust(pRoot, pNode);
-	pRoot = __erase_deal(pRoot, pNode);
-	return pRoot;
+	__erase_aim(pRoot, pNode);
+	__erase_adjust(pRoot, pNode);
+	__erase_deal(pRoot, pNode);
 }
 
-PTreeNode searchRBLeaf(PTreeNode pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
+PTreeNode searchRBLeaf(PTreeRoot pRoot, PTreeNode pNode, TREECMP_FUNC cmpFunc)
 {
+	PTreeNode root = pRoot->root;
 	while(1){
-		if(cmpFunc(pRoot, pNode) == 0)
+		if(cmpFunc(pNode, root) == 0)
 			break;
 
-		if(cmpFunc(pRoot, pNode) < 0 && pRoot->rb_left)
-			pRoot = pRoot->rb_left;
-		else if(cmpFunc(pRoot, pNode) > 0 && pRoot->rb_right)
-			pRoot = pRoot->rb_right;
+		if(cmpFunc(pNode, root) < 0 && root->rb_left)
+			root = root->rb_left;
+		else if(cmpFunc(pNode, root) > 0 && root->rb_right)
+			root = root->rb_right;
 		else
 			break;
 	}
 
-	return pRoot;
+	return root;
 }

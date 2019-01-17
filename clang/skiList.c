@@ -1,6 +1,6 @@
 #include "skiList.h"
 
-void sortInsert(PTrainNode pHead, LISTSORT_FUNC cmpFunc)
+void sortInsert(PTrainNode pHead, LISTCMP_FUNC cmpFunc)
 {
 	PTrainNode cursor;
 	PTrainNode pNode;
@@ -19,7 +19,7 @@ void sortInsert(PTrainNode pHead, LISTSORT_FUNC cmpFunc)
 	}
 }
 
-void sortMerge(PTrainNode pHead, LISTSORT_FUNC cmpFunc)
+void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc)
 {
 	if(pHead->next == pHead->prev)
 		return;
@@ -75,7 +75,7 @@ void pushList(PTrainNode pHead, PTrainNode pNode)
 	insertTrainNodeFront(pHead, pNode);
 }
 
-PTrainNode popList(pHead)
+PTrainNode popList(PTrainNode pHead)
 {
 	PTrainNode ret = NULL;
 	if((ret = deleteTrainNode(pHead->prev)) == pHead)
@@ -83,7 +83,7 @@ PTrainNode popList(pHead)
 	return ret;
 }
 
-PTrainNode getFirstList(PTrainNode pHead)
+PTrainNode beheadList(PTrainNode pHead)
 {
 	PTrainNode ret = NULL;
 	if((ret = deleteTrainNode(pHead->next)) == pHead)

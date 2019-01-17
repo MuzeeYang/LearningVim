@@ -7,7 +7,13 @@ typedef struct _rb_node{
 	struct _rb_node *rb_right;
 }__attribute__((aligned(sizeof(unsigned long)))) TTreeNode, *PTreeNode;
 
+typedef struct _rb_root{
+	PTreeNode root;
+}TTreeRoot, *PTreeRoot;
+
 typedef int (*TREECMP_FUNC)(PTreeNode, PTreeNode);
+
+#define DECLARE_HEAD_TREE(name) TTreeNode name = {.root = NULL}
 
 #ifndef CONTAINER_OF
 #define CONTAINER_OF(addr, type, name) ((type*)((unsigned long)addr - (unsigned long)(&((type*)0)->name)))
@@ -136,8 +142,8 @@ static inline PTreeNode delete_rbnode(PTreeNode pNode)
 	return pNode;
 }
 
-PTreeNode insertRBLeaf(PTreeNode, PTreeNode, TREECMP_FUNC);
-PTreeNode eraseRBLeaf(PTreeNode, PTreeNode);
-PTreeNode searchRBLeaf(PTreeNode, PTreeNode, TREECMP_FUNC);
+void insertRBLeaf(PTreeRoot, PTreeNode, TREECMP_FUNC);
+void eraseRBLeaf(PTreeRoot, PTreeNode);
+PTreeNode searchRBLeaf(PTreeRoot, PTreeNode, TREECMP_FUNC);
 
 #endif
