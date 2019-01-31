@@ -8,12 +8,17 @@ typedef struct _node{
 	struct _node *next;
 }TMapNode, *PMapNode;
 
+typedef struct _hashHead{
+	uint32 size;
+	uint32 length;
+	PMapNode hashmapPtr;
+}TMapHead, *PMapHead;
+
 #define MAP_SIZE_GENE (3/4)
 #define MAP_SIZE_DEFAULT (64)
 
-PMapNode createHashMap(uint32 size);
-PMapNode adjustHashMap();
-PMapNode searchHashMap(char *key);
-PMapNode eraseHashMap(char *key);
-PMapNode insertHashMap(char *key, PMapNode pNode);
+void createHashMap(PMapHead, uint32);
+PMapNode searchHashMap(PMapHead, char *);
+PMapNode eraseHashMap(PMapHead, char *);
+PMapNode insertHashMap(PMapHead, PMapNode);
 #endif //skiHash.h

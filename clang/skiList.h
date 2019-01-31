@@ -128,6 +128,6 @@ void sortInsert(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void pushList(PTrainNode pHead, PTrainNode pNode);
 PTrainNode popList(PTrainNode pHead);
-PTrainNode beheadList(PTrainNode pHead);
+PTrainNode shiftList(PTrainNode pHead);
 
 #endif //TrainNode.h

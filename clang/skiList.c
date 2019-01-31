@@ -83,7 +83,7 @@ PTrainNode popList(PTrainNode pHead)
 	return ret;
 }
 
-PTrainNode beheadList(PTrainNode pHead)
+PTrainNode shiftList(PTrainNode pHead)
 {
 	PTrainNode ret = NULL;
 	if((ret = deleteTrainNode(pHead->next)) == pHead)

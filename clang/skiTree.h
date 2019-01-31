@@ -33,8 +33,8 @@ typedef int (*TREECMP_FUNC)(PTreeNode, PTreeNode);
 #define GET_COLOR_TREE(node) ((node)?(node)->rb_parent & 0x1:RB_BLACK)
 #define GET_POSITION_TREE(node) (((node)->rb_parent >> 1) & 0x1)
 
-#define SET_RED_COLOR_TREE(node)  ((node)?(node)->rb_parent &= (~0x1):0)
-#define SET_BLACK_COLOR_TREE(node) ((node)?(node)->rb_parent |= 0x1:0)
+#define SET_RED_COLOR_TREE(node)  ((node)&&((node)->rb_parent &= (~0x1)))
+#define SET_BLACK_COLOR_TREE(node) ((node)&&((node)->rb_parent |= 0x1))
 #define SET_COLOR_TREE(node, color) ((color)?SET_BLACK_COLOR_TREE(node):SET_RED_COLOR_TREE(node))
 #define SET_ROOT_TREE(node) ((node)->rb_parent &= 0x1)
 
