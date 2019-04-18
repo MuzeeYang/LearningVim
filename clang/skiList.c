@@ -25,17 +25,17 @@ void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc)
 		return;
 
 	PTrainNode cursor;
-	DECLARE_HEAD(newhead1);
-	DECLARE_HEAD(newhead2);
+	DECLARE_HEAD_LIST(newhead1);
+	DECLARE_HEAD_LIST(newhead2);
 	GET_MIDPTR_LIST(pHead, cursor);
 
 	cutTrainNodes(&newhead1, pHead->next, cursor);
 	cutTrainNodes(&newhead2, pHead->next, pHead->prev);
-	mergeSort(&newhead1, cmpFunc);
-	mergeSort(&newhead2, cmpFunc);
+	sortMerge(&newhead1, cmpFunc);
+	sortMerge(&newhead2, cmpFunc);
 
 	//merge start
-	DECLARE_HEAD(tmphead);
+	DECLARE_HEAD_LIST(tmphead);
 	while(1)
 	{
 		if(IS_EMPTY_LIST(&newhead1)){
@@ -77,16 +77,26 @@ void pushList(PTrainNode pHead, PTrainNode pNode)
 
 PTrainNode popList(PTrainNode pHead)
 {
-	PTrainNode ret = NULL;
+	PTrainNode ret = 0;
 	if((ret = deleteTrainNode(pHead->prev)) == pHead)
-		ret = NULL
+		ret = 0;
 	return ret;
 }
 
 PTrainNode shiftList(PTrainNode pHead)
 {
-	PTrainNode ret = NULL;
+	PTrainNode ret = 0;
 	if((ret = deleteTrainNode(pHead->next)) == pHead)
-		ret = NULL
+		ret = 0;
 	return ret;
+}
+
+void pushSortList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc)
+{
+	PTrainNode cursor = 0;
+	FOR_EACH(pHead, cursor){
+		if(cmpFunc(cursor, pNode) > 0)
+			break;
+	}
+	insertTrainNodeFront(cursor, pNode);
 }

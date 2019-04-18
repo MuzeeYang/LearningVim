@@ -1,0 +1,97 @@
+body,html{
+	margin:0px;
+	height:100%;
+	font-size:100%;
+}
+.container_main{
+	margin:0 auto;
+	width:70%;
+	height:100%;
+	display:flex;
+	align-items:center;
+	font-size:1em;
+	position:relative;
+}
+.head_logo{
+	height:10%;
+	widith:100%;
+	display:flex;
+	align-items:center;
+}
+.head_logo input{
+	width:25%;
+	height:25%;
+	margin-left: auto;
+	border:solid 3px #bbb;
+}
+.head_nav{
+	witdh:100%;
+	height:3%;
+	background-color:#6699cc;
+	color:#fcfcfc;
+	display:flex;
+	align-items:center;
+}
+.table_container{
+	height:85%;
+	magin:0px;
+	padding-top:0.5em;
+	display:flex;
+}
+
+.table_list_bt{
+	background-color:#fff;
+	position: relative;
+	z-index: 5;
+	cursor: pointer;
+}
+
+.table_list{
+	width:30%;
+	height:95%;
+	background-color:#eee;
+	border-radius:0.5em;
+	overflow-y:auto;
+	overflow-x:hidden;
+	box-shadow:darkgray 0 0 0.5em 0.1em;
+	position: relative;
+	display: none;
+}
+
+.table_list div{
+	//width:95%;
+	height:2.5em;
+	magin:0;
+	padding:0.5em;
+	text-decoration:none;
+	font-size:0.8em;
+	background-color:#eee;
+	display:flex;
+	align-items:center;
+	border-radius:0.5em;
+	position: relative;
+	z-index: 0;
+	cursor: pointer;
+}
+
+.table_list div img{
+	height: 100%;
+	margin-right: 0.5em;
+}
+
+.table_list div span{
+	display: none;
+}
+
+.table_view{
+	height:100%;
+	background-color:#ddd;
+	border:solid 1px #666;
+	display:flex;
+	justify-content:center;
+	align-items:center;
+	position:absolute;
+	left:0;
+	right:0;
+	overflow:auto;
+}

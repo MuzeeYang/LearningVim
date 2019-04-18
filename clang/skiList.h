@@ -1,5 +1,5 @@
-#ifndef __LISTTRAIN_H__
-#define __LISTTRAIN_H__
+#ifndef __SKILIST_H__
+#define __SKILIST_H__
 
 typedef struct _listTrain
 {
@@ -129,5 +129,6 @@ void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void pushList(PTrainNode pHead, PTrainNode pNode);
 PTrainNode popList(PTrainNode pHead);
 PTrainNode shiftList(PTrainNode pHead);
+void pushSortList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc);
 
-#endif //TrainNode.h
+#endif //skiList.h
