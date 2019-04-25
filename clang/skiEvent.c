@@ -18,8 +18,10 @@ static PCBStruct getThreadCallback()
 	pthread_mutex_lock(&tpMutex);
 	while(IS_EMPTY_LIST(pEventHead)){
 		pthread_cond_wait(&tpCond, &tpMutex);
-		if(pEventHead == NULL)
+		if(pEventHead == NULL){
+			pthread_mutex_unlock(&tpMutex);
 			return NULL;
+		}
 	}
 	shiftNode = shiftList(pEventHead);
 	pthread_mutex_unlock(&tpMutex);
@@ -36,6 +38,7 @@ static PCBStruct getThreadCallback()
 
 int setThreadCallbackRaw(int (*cb)(), int argc, void** argv)
 {
+	int ret = -1;
 	PCBStruct newCallBack = NULL;
 	PThreadEvent newEvent = NULL;
 	if(newCallBack = malloc(sizeof(TCBStruct) + sizeof(void*)*argc)){
@@ -58,18 +61,18 @@ int setThreadCallbackRaw(int (*cb)(), int argc, void** argv)
 		goto EVENT_MALLOC_FAILED;
 	}
 
-	return 0;
+	ret = 0;
 EVENT_MALLOC_FAILED:
 	free(newCallBack);
 CALLBACK_MALLOC_FAILED:
-	return -1;
+	return ret;
 }
 
 int setThreadCallback(int (*cb)(), int argc, ...)
 {
 	va_list ap;
-	if(argc < 0)argc = 0;
-	void* argv[argc];
+	//if(argc < 0)argc = 0;
+	void* argv[argc = (argc < 0? 0: argc)];
 
 	va_start(ap, argc);
 	int i;
@@ -127,4 +130,72 @@ int freeThreadPool()
 	pthread_cond_broadcast(&tpCond);
 
 	return 0;
+}
+
+int isThreadPool()
+{
+	return !IS_EMPTY_LIST(pEventHead);
+}
+
+void* initTC()
+{
+	PThreadCon pTC = NULL;
+	if((pTC = malloc(sizeof(TThreadCon))) == NULL){
+		goto CTRLLER_MALLOC_FAILED;
+	}
+
+	pTC->send = NULL;
+	pTC->recv = NULL;
+	pthread_mutex_init(&pTC->mtx, NULL);
+	pthread_cond_init(&pTC->cnd, NULL);
+
+	return pTC;
+
+CTRLLER_MALLOC_FAILED:
+	return NULL;
+}
+
+int freeTC(PThreadCon pTC)
+{
+	pthread_mutex_lock(&pTC->mtx);
+	pTC->send = NULL;
+	pTC->recv = NULL;
+	pthread_mutex_unlock(&pTC->mtx);
+	pthread_cond_broadcast(&pTC->cnd);
+
+	pthread_cond_destroy(&pTC->cnd);
+	pthread_mutex_destroy(&pTC->mtx);
+	free(pTC);
+	pTC = NULL;
+
+	return 0;
+}
+
+void* waitTC(PThreadCon pTC, void* recv)
+{
+	void* ret = NULL;
+	pthread_mutex_lock(&pTC->mtx);
+	while(pTC->recv){
+		pthread_cond_wait(&pTC->cnd, &pTC->mtx);
+	}
+	ret = pTC->send;
+	pTC->recv = recv;
+	pthread_mutex_unlock(&pTC->mtx);
+	pthread_cond_broadcast(&pTC->cnd);
+	return ret;
+}
+
+void* sendTC(PThreadCon pTC, void* send)
+{
+	void* ret = NULL;
+	pthread_mutex_lock(&pTC->mtx);
+	while(!pTC->recv){
+		pthread_cond_wait(&pTC->cnd, &pTC->mtx);
+	}
+	ret = pTC->recv;
+	pTC->recv = NULL;
+	pTC->send = send;
+	pthread_mutex_unlock(&pTC->mtx);
+	pthread_cond_signal(&pTC->cnd);
+	return ret;
 }
