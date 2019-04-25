@@ -1,7 +1,6 @@
 #include "stdlib.h"
 #include "stdarg.h"
 #include "string.h"
-#include "pthread.h"
 #include "utypes.h"
 #include "skiEvent.h"
 
@@ -38,7 +37,6 @@ static PCBStruct getThreadCallback()
 
 int setThreadCallbackRaw(int (*cb)(), int argc, void** argv)
 {
-	int ret = -1;
 	PCBStruct newCallBack = NULL;
 	PThreadEvent newEvent = NULL;
 	if(newCallBack = malloc(sizeof(TCBStruct) + sizeof(void*)*argc)){
@@ -61,11 +59,11 @@ int setThreadCallbackRaw(int (*cb)(), int argc, void** argv)
 		goto EVENT_MALLOC_FAILED;
 	}
 
-	ret = 0;
+	return 0;
 EVENT_MALLOC_FAILED:
 	free(newCallBack);
 CALLBACK_MALLOC_FAILED:
-	return ret;
+	return -1;
 }
 
 int setThreadCallback(int (*cb)(), int argc, ...)

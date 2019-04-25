@@ -2,6 +2,7 @@
 #define __SKIEVENT_H__
 
 #include "skiList.h"
+#include "pthread.h"
 
 typedef struct _bcStruct{
 	int (*callback)();
