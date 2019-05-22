@@ -1,95 +1,127 @@
-#include "stdlib.h"
-#include "stdarg.h"
+#include "sys/time.h"
 #include "string.h"
+#include "malloc.h"
+#include "pthread.h"
 #include "utypes.h"
+#include "skiList.h"
 #include "skiEvent.h"
+
+typedef struct _eventList{
+	TTrainNode list;
+	int nice;
+	int (*cb)();
+	int argsize;
+	char* args[0];
+}TThreadEvent, *PThreadEvent;
+
+typedef struct _arg32{char buf[32];}TArgs32;
+typedef struct _arg64{char buf[64];}TArgs64;
+typedef struct _arg128{char buf[128];}TArgs128;
 
 static PTrainNode pEventHead = NULL;
 static pthread_mutex_t tpMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t tpCond = PTHREAD_COND_INITIALIZER;
 
-static PCBStruct getThreadCallback()
+static PThreadEvent getThreadCallback()
 {
 	PTrainNode shiftNode = NULL;
 	PThreadEvent event = NULL;
-	PCBStruct cbStruct = NULL;
 
 	pthread_mutex_lock(&tpMutex);
-	while(IS_EMPTY_LIST(pEventHead)){
+	while(pEventHead && IS_EMPTY_LIST(pEventHead)){
 		pthread_cond_wait(&tpCond, &tpMutex);
-		if(pEventHead == NULL){
-			pthread_mutex_unlock(&tpMutex);
-			return NULL;
-		}
 	}
-	shiftNode = shiftList(pEventHead);
+	if(pEventHead)shiftNode = shiftList(pEventHead);
 	pthread_mutex_unlock(&tpMutex);
 
 	if(shiftNode){
 		event = CONTAINER_OF(shiftNode, TThreadEvent, list);
-		cbStruct = event->cb;
-		free(event);
-		event = NULL;
 	}
-	return cbStruct;
+
+	return event;
 }
 
-
-int setThreadCallbackRaw(int (*cb)(), int argc, void** argv)
+int setThreadCallbackRaw(int (*cb)(), int argsize, void* args)
 {
-	PCBStruct newCallBack = NULL;
-	PThreadEvent newEvent = NULL;
-	if(newCallBack = malloc(sizeof(TCBStruct) + sizeof(void*)*argc)){
-		newCallBack->callback = cb;
-		newCallBack->argc = argc;
-		memcpy(newCallBack->argv, argv, sizeof(void*)*argc);
-	}else{
-		goto CALLBACK_MALLOC_FAILED;
-	}
+	PThreadEvent pEvent = NULL;
 
-	if(newEvent = malloc(sizeof(TThreadEvent))){
-		newEvent->cb = newCallBack;
-		newEvent->nice = 0;
-		pthread_mutex_lock(&tpMutex);
-		pushList(pEventHead, &newEvent->list);
-		pthread_mutex_unlock(&tpMutex);
-		pthread_cond_signal(&tpCond);
-		//pthread_cond_broadcast(&tpCond);
-	}else{
-		goto EVENT_MALLOC_FAILED;
-	}
+	if((pEvent = malloc(sizeof(TThreadEvent) + argsize)) == NULL)return -1;
+	memset(pEvent, 0, sizeof(TThreadEvent) + argsize);
+
+	pEvent->cb = cb;
+	pEvent->argsize = argsize;
+	memcpy(pEvent->args, args, argsize);
+
+	pthread_mutex_lock(&tpMutex);
+	pushList(pEventHead, &pEvent->list);
+	pthread_mutex_unlock(&tpMutex);
+	pthread_cond_signal(&tpCond);
 
 	return 0;
-EVENT_MALLOC_FAILED:
-	free(newCallBack);
-CALLBACK_MALLOC_FAILED:
-	return -1;
 }
 
-int setThreadCallback(int (*cb)(), int argc, ...)
+static int _getArgSize(char* argfmt)
 {
-	va_list ap;
-	//if(argc < 0)argc = 0;
-	void* argv[argc = (argc < 0? 0: argc)];
+	int argsize = 0;
 
-	va_start(ap, argc);
-	int i;
-	for(i = 0; i < argc; i++){
-		argv[i] = va_arg(ap, void*);
+	while(argfmt && *argfmt){
+		switch(*argfmt++){
+			case 's':
+			case 'p':
+				argsize += sizeof(void*);
+				break;
+			case 'd':
+			case 'i':
+			case 'u':
+			case 'c':
+				argsize += sizeof(int);
+				break;
+			case 'f':
+			case 'g':
+				argsize += sizeof(double);
+				break;
+		}
 	}
-	va_end(ap);
-	return setThreadCallbackRaw(cb, argc, argv);
+	return argsize;
+}
+
+int setThreadCallback(int (*cb)(), char* argfmt, ...)
+{
+	PThreadEvent pEvent = NULL;
+	int argsize = _getArgSize(argfmt);
+
+	/*
+	if((pEvent = malloc(sizeof(TThreadEvent) + argsize)) == NULL)return -1;
+	memset(pEvent, 0, sizeof(TThreadEvent) + argsize);
+
+	pEvent->cb = cb;
+	pEvent->argsize = argsize;
+	memcpy(pEvent->args, &argfmt + 1, argsize);
+
+	pthread_mutex_lock(&tpMutex);
+	pushList(pEventHead, &pEvent->list);
+	pthread_mutex_unlock(&tpMutex);
+	pthread_cond_signal(&tpCond);
+	*/
+
+	return setThreadCallbackRaw(cb, argsize, &argfmt + 1);
 }
 
 static void* threadFunc(void* nothing)
 {
-	PCBStruct cbStruct = NULL;
+	PThreadEvent pEvent = NULL;
 	while(pEventHead){
-		if(cbStruct = getThreadCallback()){
-			cbStruct->callback(cbStruct->argc, cbStruct->argv);
-			free(cbStruct);
-			cbStruct = NULL;
-		}
+		if((pEvent = getThreadCallback()) == NULL)continue;
+
+		if(pEvent->argsize <= 32)
+			pEvent->cb(*((TArgs32*)pEvent->args));
+		else if(pEvent->argsize <= 64)
+			pEvent->cb(*((TArgs64*)pEvent->args));
+		else if(pEvent->argsize <= 128)
+			pEvent->cb(*((TArgs128*)pEvent->args));
+		else
+			pEvent->cb();
+
 	}
 	pthread_detach(pthread_self());
 	return NULL;
@@ -99,14 +131,18 @@ int initThreadPool(int threadNum)
 {
 	int i = 0;
 	pthread_t tid = 0;
-	if(pEventHead = malloc(sizeof(TTrainNode))){
-		pEventHead->prev = pEventHead->next = pEventHead;
-		for(i = 0; i < threadNum; i++){
-			if(pthread_create(&tid, NULL, threadFunc, pEventHead)){
-				break;
-			}
+	if((pEventHead = malloc(sizeof(TTrainNode))) == NULL){
+		goto HEAD_MALLOC_FAILED;
+	}
+
+	pEventHead->prev = pEventHead->next = pEventHead;
+	for(i = 0; i < threadNum; i++){
+		if(pthread_create(&tid, NULL, threadFunc, pEventHead)){
+			break;
 		}
 	}
+
+HEAD_MALLOC_FAILED:
 	return i;
 }
 
@@ -117,10 +153,7 @@ int freeThreadPool()
 	pthread_mutex_lock(&tpMutex);
 	FOR_EACH(pEventHead, cursor){
 		event = CONTAINER_OF(cursor, TThreadEvent, list);
-		free(event->cb);
-		event->cb = NULL;
 		free(event);
-		event = NULL;
 	}
 	free(pEventHead);
 	pEventHead = NULL;
@@ -132,68 +165,21 @@ int freeThreadPool()
 
 int isThreadPool()
 {
-	return !IS_EMPTY_LIST(pEventHead);
+	return !(pEventHead);
 }
 
-void* initTC()
+int msleep(unsigned int msec)
 {
-	PThreadCon pTC = NULL;
-	if((pTC = malloc(sizeof(TThreadCon))) == NULL){
-		goto CTRLLER_MALLOC_FAILED;
-	}
-
-	pTC->send = NULL;
-	pTC->recv = NULL;
-	pthread_mutex_init(&pTC->mtx, NULL);
-	pthread_cond_init(&pTC->cnd, NULL);
-
-	return pTC;
-
-CTRLLER_MALLOC_FAILED:
-	return NULL;
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = msec * 1000 - msec % 1024;
+	return select(0, NULL, NULL, NULL, &tv);
 }
 
-int freeTC(PThreadCon pTC)
+unsigned int getmseconds()
 {
-	pthread_mutex_lock(&pTC->mtx);
-	pTC->send = NULL;
-	pTC->recv = NULL;
-	pthread_mutex_unlock(&pTC->mtx);
-	pthread_cond_broadcast(&pTC->cnd);
-
-	pthread_cond_destroy(&pTC->cnd);
-	pthread_mutex_destroy(&pTC->mtx);
-	free(pTC);
-	pTC = NULL;
-
-	return 0;
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000 % 1000);
 }
 
-void* waitTC(PThreadCon pTC, void* recv)
-{
-	void* ret = NULL;
-	pthread_mutex_lock(&pTC->mtx);
-	while(pTC->recv){
-		pthread_cond_wait(&pTC->cnd, &pTC->mtx);
-	}
-	ret = pTC->send;
-	pTC->recv = recv;
-	pthread_mutex_unlock(&pTC->mtx);
-	pthread_cond_broadcast(&pTC->cnd);
-	return ret;
-}
-
-void* sendTC(PThreadCon pTC, void* send)
-{
-	void* ret = NULL;
-	pthread_mutex_lock(&pTC->mtx);
-	while(!pTC->recv){
-		pthread_cond_wait(&pTC->cnd, &pTC->mtx);
-	}
-	ret = pTC->recv;
-	pTC->recv = NULL;
-	pTC->send = send;
-	pthread_mutex_unlock(&pTC->mtx);
-	pthread_cond_signal(&pTC->cnd);
-	return ret;
-}
