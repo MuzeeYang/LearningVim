@@ -184,7 +184,6 @@ char* joinString(char** field, int size, char* sep)
 {
 	char* str = NULL;
 	char* cur = NULL;
-	int strBlk = 0;
 	int sepLen = 0;
 	int fieldLen = 0;
 	int strLen = 0;
