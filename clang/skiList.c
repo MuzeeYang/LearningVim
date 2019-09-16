@@ -95,8 +95,23 @@ void pushSortList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc)
 {
 	PTrainNode cursor = 0;
 	FOR_EACH(pHead, cursor){
-		if(cmpFunc(cursor, pNode) > 0)
-			break;
+		if(cmpFunc(cursor, pNode) > 0)break;
 	}
 	insertTrainNodeFront(cursor, pNode);
+}
+
+PTrainNode searchList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc)
+{
+	PTrainNode start = NULL, end = NULL;
+
+	start = pHead->next;
+	end = pHead->prev;
+	do{
+		if(cmpFunc(start, pNode) == 0)return start;
+		if(cmpFunc(end, pNode) == 0)return end;
+		start = start->next;
+		end = end->prev;
+	}while(start != end && start->next != end)
+
+	return NULL;
 }

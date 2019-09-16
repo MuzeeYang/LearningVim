@@ -11,12 +11,13 @@ typedef struct _eventList{
 	int nice;
 	int (*cb)();
 	int argsize;
-	char* args[0];
+	char args[0];
 }TThreadEvent, *PThreadEvent;
 
 typedef struct _arg32{char buf[32];}TArgs32;
 typedef struct _arg64{char buf[64];}TArgs64;
 typedef struct _arg128{char buf[128];}TArgs128;
+typedef struct _arg256{char buf[256];}TArgs256;
 
 static PTrainNode pEventHead = NULL;
 static pthread_mutex_t tpMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -113,14 +114,16 @@ static void* threadFunc(void* nothing)
 	while(pEventHead){
 		if((pEvent = getThreadCallback()) == NULL)continue;
 
-		if(pEvent->argsize <= 32)
+		if(pEvent->argsize == 0)
+			pEvent->cb();
+		else if(pEvent->argsize <= 32)
 			pEvent->cb(*((TArgs32*)pEvent->args));
 		else if(pEvent->argsize <= 64)
 			pEvent->cb(*((TArgs64*)pEvent->args));
 		else if(pEvent->argsize <= 128)
 			pEvent->cb(*((TArgs128*)pEvent->args));
 		else
-			pEvent->cb();
+			pEvent->cb(*((TArgs256*)pEvent->args));
 
 	}
 	pthread_detach(pthread_self());

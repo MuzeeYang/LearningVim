@@ -4,8 +4,8 @@
 #include "utypes.h"
 
 //#define _CRC_CCITT
-//#define _CRC_16
-#define _CRC_32
+#define _CRC_16
+//#define _CRC_32
 
 #ifdef _CRC_CCITT
 #define POLYNOMIAL          0x8408//0x1021

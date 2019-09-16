@@ -3,7 +3,7 @@
 
 #define STR_BLK_SIZE (0x100)
 #define BUFFER_BLOCK(size) (((size)&~0xff) + (((size)&0xff) != 0)*0x100)
-#define BUFFER_SIZE(buf) (*((unsigned int*)(buf) - 1) & ~0x3)
+#define BUFFER_SIZE(buf) (*((unsigned long*)(buf) - 1) & ~0x3)
 //#define BUFFER_SIZE(size) ((size)/STR_BLK_SIZE*STR_BLK_SIZE + ((size)%STR_BLK_SIZE != 0)*STR_BLK_SIZE)
 
 typedef struct _strWrapper{

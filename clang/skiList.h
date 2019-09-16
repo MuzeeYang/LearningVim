@@ -130,5 +130,6 @@ void pushList(PTrainNode pHead, PTrainNode pNode);
 PTrainNode popList(PTrainNode pHead);
 PTrainNode shiftList(PTrainNode pHead);
 void pushSortList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc);
+PTrainNode searchList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc);
 
 #endif //skiList.h
