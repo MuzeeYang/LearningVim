@@ -9,25 +9,29 @@ char* initBuffer(char* str, unsigned int newSize)
 	if(str){
 		unsigned int oldSize = BUFFER_SIZE(str);
 		if(oldSize < newSize){
-			newSize = BUFFER_BLOCK(newSize);
+			//newSize = BUFFER_BLOCK(newSize);
 			if((str = realloc(str, newSize)) == NULL){
 				goto BUFFER_REALLOC_FAILED;
 			}
+			newSize = BUFFER_SIZE(str);
 
 			memset(str + oldSize, 0, newSize - oldSize);
 		}
 	}else{
-		newSize = BUFFER_BLOCK(newSize);
+		//newSize = BUFFER_BLOCK(newSize);
 		if((str = malloc(newSize)) == NULL){
 			goto BUFFER_MALLOC_FAILED;
 		}
+		newSize = BUFFER_SIZE(str);
 
 		memset(str, 0, newSize);
 	}
 
+	return str;
+
 BUFFER_REALLOC_FAILED:
 BUFFER_MALLOC_FAILED:
-	return str;
+	return NULL;
 }
 
 char* regString(char* buf, char* regstr)
@@ -301,5 +305,28 @@ char* pathString(char* root, char* file)
 	}
 
 	return str;
+}
+
+char* cutString(char* str, int start, int end)
+{
+	int wlen = strlen(str);
+	int slen = 0;
+	char* buf = NULL;
+
+	if(wlen == 0)return initBuffer(NULL, 0);
+
+	while(end < 0)end += wlen;
+	if(end == 0 || end > wlen)end = wlen + 1;
+
+	while(start < 0)start += wlen;
+	if(start > wlen)start = wlen;
+
+	if((slen = end - start) < 0)return NULL;
+	if((buf = initBuffer(NULL, slen)) == NULL)return NULL;
+
+	memcpy(buf, str+start, slen);
+	buf[slen] = 0;
+
+	return buf;
 }
 
