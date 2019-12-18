@@ -54,20 +54,13 @@
 #\033[30m -- \033[37m foreground: black red green yellow blue purple cyan white
 #\033[40m -- \033[47m background: black red green yellow blue purple cyan white
 
-export PS1="\[\e[32m\e[1m\]\u.\h\[\e[0m\](\[\e[34m\e[1m\]\W\[\e[0m\])\[\e[31m\e[1m\]\\$ \[\e[0m\e[?25h\]"
+export PS1="\[\e[32m\e[1m\]\u.\h\[\e[0m\](\[\e[34m\e[1m\]\W\[\e[0m\])\[\e[31m\e[1m\]\\$\[\e[0m\e[?25h\] "
 #set -o vi
 
 mcd()
 {
 	mkdir -p $1;
 	cd $1;
-}
-
-cdw()
-{
-	if [ -f ~/workspace ];then
-		cd `cat ~/workspace`
-	fi
 }
 
 

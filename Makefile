@@ -16,3 +16,9 @@ clean:
 	@rm ~/.myprofile
 	@cat ./proCache
 	@echo "remove the context under manually in [~/.bashrc] or [~/.profile]."
+
+update:
+	@cp -vr ~/.vim .
+	@cp -v ~/.myprofile .
+	git add .
+	git commit -m"update `date`"

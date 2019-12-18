@@ -1,0 +1,1 @@
+cmd_/home/subcar/costomDir/module/demo.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /home/subcar/costomDir/module/demo.ko /home/subcar/costomDir/module/demo.o /home/subcar/costomDir/module/demo.mod.o ;  true
