@@ -330,3 +330,107 @@ char* cutString(char* str, int start, int end)
 	return buf;
 }
 
+char* spliseString(char* str, int start, int cutlen, char* buf)
+{
+	unsigned int buflen = (buf? strlen(buf): 0);
+	unsigned int wlen = strlen(str);
+
+	//if(cutlen < 0)start += cutlen, cutlen = 0 - cutlen;
+	if(cutlen < 0 || start + cutlen > wlen)cutlen = wlen - start;
+
+	memmove(str + start + buflen, str + start + cutlen, wlen + 1 - (start + cutlen));
+	if(buf)memcpy(str + start, buf, buflen);
+
+	return str;
+}
+
+int intString(char* str)
+{
+	int digit = 10;
+	int pn = 1;
+	int ret = 0;
+	char item = 0;
+	if((str = skipString(str)) == 0)return 0;
+
+	if(str[0] == '0' && str[1] == 'x' || str[1] == 'X')digit = 16, str += 2;
+	else if(str[0] == '0' && str[1] == 'b' || str[1] == 'B')digit = 2, str += 2;
+	else if(str[0] == '0')digit = 8, str++;
+	else if(str[0] == '-' && '0' < str[1] && str[1] <= '9')pn = -1, str++;
+	else if(str[0] == '+' && '0' < str[1] && str[1] <= '9')pn = 1, str++;
+
+	while(1){
+		item = *str++;
+		if(digit == 16){
+			if('a' <= item && item <= 'f')item = item - 39;// 39 = 'a' - '0' - 10;
+			else if('A' <= item && item <= 'F')item = item - 7;// 7 = 'A' - '0' - 10;
+		}
+
+		if(item < '0' || item >= '0' + digit)break;
+		ret *= digit;
+		ret += item - '0';
+	}
+
+	return pn*ret;
+}
+
+double floatString(char *str)
+{
+	double ret = 0;
+	long long ipart = 0;
+	long long fpart = 0;
+	int ipn = 1;
+	int fpn = 1;
+	int index = 0;
+	if((str = skipString(str)) == 0)return (ret);
+
+	if(str[0] == '-')ipn = -1, str++;
+	else if(str[0] == '+')ipn = 1, str++;
+
+	while(*str >= '0' && *str <= '9'){
+		ipart *= 10;
+		ipart += *str - '0';
+		str++;
+	}
+
+	if(str[0] == '.')str++;
+	//else return ipn * (ret += ipart);
+	
+	while(*str >= '0' && *str <= '9'){
+		fpart *= 10;
+		fpart += *str - '0';
+		str++;
+	}
+
+	while(fpart){
+		ret += fpart % 10;
+		ret /= 10;
+		fpart /= 10;
+	}
+
+	if(str[0] == 'e' || str[0] == 'E')str++;
+	else return ipn * (ret += ipart);
+
+	if(str[0] == '-')fpn = -1, str++;
+	else if(str[0] == '+')fpn = 1, str++;
+
+	while(*str >= '0' && *str <= '9'){
+		index *= 10;
+		index += *str - '0';
+		str++;
+	}
+	
+	index *= fpn;
+	ret += ipart;
+	while(index > 0){
+		ret *= 10;
+		index--;
+	}
+	while(index < 0){
+		ret /= 10;
+		index++;
+	}
+
+	return ipn * ret;
+
+}
+

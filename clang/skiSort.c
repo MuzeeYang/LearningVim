@@ -113,14 +113,23 @@ void heapConstruct(T* arr, uint32 length)
 		_heapAjust(arr, length, par);
 }
 
+int heapOnce(T* arr, uint32 length, uint32 count)
+{
+	uint32 j;
+	for(j = length-1; j > 0 && count--; j--){
+		SWAP(arr[0], arr[j]);
+		_heapAjust(arr, j, 0);
+	}
+	return length - 1 - j;
+}
+
 void heapSort(T* arr, uint32 length)
 {
 	uint32 j;
-	gHeapSorted = 0;
+	heapConstruct(arr, length);
 	for(j = length-1; j > 0; j--){
 		SWAP(arr[0], arr[j]);
 		_heapAjust(arr, j, 0);
-		gHeapSorted++;
 	}
 }
 

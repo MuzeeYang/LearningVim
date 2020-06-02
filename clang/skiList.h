@@ -8,6 +8,10 @@ typedef struct _listTrain
 }TTrainNode, *PTrainNode;
 
 typedef int (*LISTCMP_FUNC)(PTrainNode, PTrainNode);
+typedef LISTCMP_FUNC LISTRDC_FUNC;
+typedef PTrainNode (*LISTDUP_FUNC)(PTrainNode);
+typedef int (*LISTFLT_FUNC)(PTrainNode);
+typedef LISTFLT_FUNC LISTDSTR_FUNC;
 
 #define DECLARE_HEAD_LIST(name) TTrainNode name = {&name, &name}
 
@@ -117,10 +121,10 @@ static inline void cutTrainNodes(PTrainNode newhead, PTrainNode start, PTrainNod
 	__insertNodes(newhead, start, end, newhead);
 }
 
-static inline void catTrainNodes(PTrainNode desthead, PTrainNode sourhead)
+static inline void catTrainNodes(PTrainNode entry, PTrainNode sourhead)
 {
 	if(IS_EMPTY_LIST(sourhead))return;
-	__insertNodes(desthead->prev, sourhead->next, sourhead->prev, desthead);
+	__insertNodes(entry, sourhead->next, sourhead->prev, entry->next);
 	__initNode(sourhead);
 }
 
@@ -128,8 +132,17 @@ void sortInsert(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void sortMerge(PTrainNode pHead, LISTCMP_FUNC cmpFunc);
 void pushList(PTrainNode pHead, PTrainNode pNode);
 PTrainNode popList(PTrainNode pHead);
+void unshiftList(PTrainNode pHead, PTrainNode pNode);
 PTrainNode shiftList(PTrainNode pHead);
+PTrainNode jumpList(PTrainNode pHead, PTrainNode pNode, int length);
+int countList(PTrainNode pHead, PTrainNode start, PTrainNode end);
+void spliceList(PTrainNode start, PTrainNode end, PTrainNode outHead, PTrainNode inHead);
+PTrainNode duplicateList(PTrainNode pHead, PTrainNode outHead, LISTDUP_FUNC dupFunc);
+PTrainNode reverseList(PTrainNode pHead, PTrainNode outHead, LISTDUP_FUNC dupFunc);
+PTrainNode filterList(PTrainNode pHead, PTrainNode outHead, LISTDUP_FUNC dupFunc);
+PTrainNode reduceList(PTrainNode pHead, PTrainNode outNode, LISTRDC_FUNC reduceFunc);
 void pushSortList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc);
 PTrainNode searchList(PTrainNode pHead, PTrainNode pNode, LISTCMP_FUNC cmpFunc);
+void destroyList(PTrainNode pHead, LISTDSTR_FUNC destroyFunc);
 
 #endif //skiList.h

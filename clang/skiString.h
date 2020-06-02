@@ -28,5 +28,8 @@ char* skipString(char* str);
 char* washString(char* str);
 char* pathString(char* root, char* file); //need to free
 char* cutString(char* str, int start, int end);	//need to free
+char* spliseString(char* str, int start, int cutlen, char* buf);
+int intString(char* str);
+double floatString(char *str);
 
 #endif //skiString.h

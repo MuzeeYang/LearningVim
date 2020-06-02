@@ -19,3 +19,5 @@ void heapConstruct(T* arr, uint32 length);
 void heapSort(T*, uint32);
 uint32 heapGetSorted(void);
 
+
+#endif //skiSort.h
