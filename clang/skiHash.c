@@ -143,13 +143,20 @@ int freeHashMap(PMapHead pHead, MAP_FREENODE_FUNC func)
 
 PMapNode searchHashMap(PMapHead pHead, char *key)
 {
-	return _locateHashMap(pHead, key)->next;
+	PMapNode cursor = NULL;
+	if(key)cursor = _locateHashMap(pHead, key);
+	else return NULL;
+
+	return cursor->next;
 }
 
 PMapNode eraseHashMap(PMapHead pHead, char* key)
 {
-	PMapNode cursor = _locateHashMap(pHead, key);
+	PMapNode cursor = NULL;//_locateHashMap(pHead, key);
 	PMapNode ret = NULL;
+
+	if(key)cursor = _locateHashMap(pHead, key);
+	else return NULL;
 
 	if(cursor->next){
 		ret = _rmMapNode(cursor);
@@ -161,11 +168,14 @@ PMapNode eraseHashMap(PMapHead pHead, char* key)
 
 PMapNode insertHashMap(PMapHead pHead, PMapNode pNode)
 {
-	if(pHead->length+1 > pHead->size*MAP_SIZE_GENE)
+	if(pHead->length > pHead->size*MAP_SIZE_GENE)
 		_adjustHashMap(pHead);
 
-	PMapNode cursor = _locateHashMap(pHead, pNode->key);
+	PMapNode cursor = NULL;//_locateHashMap(pHead, pNode->key);
 	PMapNode ret = NULL;
+
+	if(pNode && pNode->key)cursor = _locateHashMap(pHead, pNode->key);
+	else return NULL;
 
 	if(cursor->next)ret = _rmMapNode(cursor);
 	else pHead->length++;
@@ -185,7 +195,7 @@ int keysHashMap(PMapHead pHead, char* keys[])
 	for(i = 0; i < pHead->size; i++){
 		cursor = pHead->hashmapPtr + i;
 		while(cursor->next){
-			if(keys)*keys++ = cursor->key;
+			if(keys)*keys++ = cursor->next->key;//keys++;}
 			cursor = cursor->next;
 		}
 	}

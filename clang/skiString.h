@@ -1,10 +1,16 @@
 #ifndef __SKISTRING_H__
 #define __SKISTRING_H__
 
-//#define STR_BLK_SIZE (0x100)
-//#define BUFFER_BLOCK(size) (((size)&~0xff) + (((size)&0xff) != 0)*0x100)
-#define BUFFER_SIZE(buf) (*((unsigned long*)(buf) - 1) & ~0x3)
-//#define BUFFER_SIZE(size) ((size)/STR_BLK_SIZE*STR_BLK_SIZE + ((size)%STR_BLK_SIZE != 0)*STR_BLK_SIZE)
+#define BUFFER_BLK_SIZE (0xff)
+#define BUFFER_GET_BFID(addr) ((((unsigned long)(addr) >> 8) & BUFFER_BLK_SIZE) ^ ((unsigned long)(addr) & BUFFER_BLK_SIZE))
+#define BUFFER_GET_SZID(sz) ((sz) & BUFFER_BLK_SIZE)
+#define BUFFER_GET_SZ(sz) ((sz) & ~BUFFER_BLK_SIZE)
+
+
+struct _buffer{
+	unsigned long len;
+	char buf[0];
+};
 
 typedef struct _strWrapper{
 	char* buf;
@@ -14,21 +20,23 @@ typedef struct _strWrapper{
 	char* field[0];
 }TStrWrapper, *PStrWrapper;
 
-char* initBuffer(char* str, unsigned int size);
+void* initBuffer(void* str, unsigned int size);
+void freeBuffer(void* str);
 
 PStrWrapper wrapRegex(char* buf, char* regstr);
 PStrWrapper wrapString(char* buf, char* sep);
+PStrWrapper findString(char* str, char* need);
 int freeWrapper(PStrWrapper strw);
 
 char* regString(char* buf, char* regstr);
-char* joinString(char** field, int size, char* sep); //need to free
+char* joinString(char** field, int size, char* sep); //need to freeBuffer
 char* lowerString(char* str);
 char* upperString(char* str);
 char* skipString(char* str);
 char* washString(char* str);
-char* pathString(char* root, char* file); //need to free
-char* cutString(char* str, int start, int end);	//need to free
-char* spliseString(char* str, int start, int cutlen, char* buf);
+char* pathString(char* root, char* file); //need to freeBuffer
+char* cutString(char* str, int start, int end);	//need to freeBuffer
+char* spliceString(char* str, int start, int cutlen, char* buf);
 int intString(char* str);
 double floatString(char *str);
 

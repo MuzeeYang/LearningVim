@@ -4,34 +4,68 @@
 #include "skiString.h"
 #include "regex.h"
 
-char* initBuffer(char* str, unsigned int newSize)
+void* initBuffer(void* str, unsigned int newSize)
 {
+	struct _buffer* b = NULL;
+	unsigned int oldSize = 0;
+	newSize += sizeof(struct _buffer);
+	if(BUFFER_GET_SZID(newSize))
+		newSize = BUFFER_GET_SZ(newSize) + (BUFFER_BLK_SIZE+1); //block align
+
 	if(str){
-		unsigned int oldSize = BUFFER_SIZE(str);
+		b = str - sizeof(struct _buffer);
+		if(BUFFER_GET_SZID(b->len) != BUFFER_GET_BFID(str))goto buffer_addr_failed;
+
+		oldSize = BUFFER_GET_SZ(b->len);
 		if(oldSize < newSize){
 			//newSize = BUFFER_BLOCK(newSize);
-			if((str = realloc(str, newSize)) == NULL){
-				goto BUFFER_REALLOC_FAILED;
+			if((b = realloc(b, newSize)) == NULL){
+				goto buffer_realloc_failed;
 			}
-			newSize = BUFFER_SIZE(str);
 
-			memset(str + oldSize, 0, newSize - oldSize);
+			memset(b + oldSize, 0, newSize - oldSize);
+			b->len = newSize | BUFFER_GET_BFID(b->buf);
 		}
 	}else{
-		//newSize = BUFFER_BLOCK(newSize);
-		if((str = malloc(newSize)) == NULL){
-			goto BUFFER_MALLOC_FAILED;
+		if((b = malloc(newSize)) == NULL){
+			goto buffer_malloc_failed;
 		}
-		newSize = BUFFER_SIZE(str);
 
-		memset(str, 0, newSize);
+		memset(b, 0, newSize);
+		b->len = newSize | BUFFER_GET_BFID(b->buf);
 	}
 
-	return str;
+	return b->buf;
 
-BUFFER_REALLOC_FAILED:
-BUFFER_MALLOC_FAILED:
+buffer_realloc_failed:
+buffer_malloc_failed:
+buffer_addr_failed:
 	return NULL;
+}
+
+void freeBuffer(void* str)
+{
+	struct _buffer *b = NULL;
+	if(str == NULL)return;
+	b = str - sizeof(struct _buffer);
+
+	if(BUFFER_GET_SZID(b->len) != BUFFER_GET_BFID(str))return;
+	free(b);
+}
+
+unsigned int measBuffer(void* str)
+{
+	struct _buffer *b = NULL;
+	unsigned int ret = 0;
+	if(str == NULL)goto buffer_arg_failed;
+	b = str - sizeof(struct _buffer);
+	if(BUFFER_GET_SZID(b->len) != BUFFER_GET_BFID(str))goto buffer_addr_failed;
+
+	ret = BUFFER_GET_SZ(b->len);
+
+buffer_addr_failed:
+buffer_arg_failed:
+	return ret;
 }
 
 char* regString(char* buf, char* regstr)
@@ -83,7 +117,7 @@ PStrWrapper wrapRegex(char* buf, char* regstr)
 	}
 
 	//size = strlen(buf) + 1;
-	if((strw->buf = initBuffer(NULL, 0)) == NULL){
+	if((strw->buf = initBuffer(NULL, 1)) == NULL){
 		goto BUFFER_MALLOC_FAILED;
 	}
 
@@ -105,7 +139,7 @@ PStrWrapper wrapRegex(char* buf, char* regstr)
 		strw->buf[strLen++] = 0;
 	}
 
-	strw->size = BUFFER_SIZE(strw->buf);
+	strw->size = measBuffer(strw->buf);
 
 	free(pmatch);
 	regfree(&reg);
@@ -130,30 +164,32 @@ PStrWrapper wrapString(char* buf, char* sep)
 	char* sbuf = NULL;
 	char* scur = NULL;
 	int sepLen = 0;
-	int snum = 0;
+	int snum = 1;
 	int size = 0;
+	int i;
+
+	if(buf == NULL || sep == NULL)goto STR_ARGS_FAILED;
 
 	size = strlen(buf) + 1; 
-	if((sbuf = malloc(size)) == NULL){
+	if((sbuf = initBuffer(NULL, size)) == NULL){
 		goto BUFFER_MALLOC_FAILED;
 	}
 	//memset(sbuf, 0, size);
 	memcpy(sbuf, buf, size);
  
-	sepLen = strlen(sep);
+	if((sepLen = strlen(sep)) == 0)goto SEP_LENGTH_FAILED;
+
 	scur = sbuf;
-	while(sepLen && (scur = strstr(scur, sep))){
+	while(scur = strstr(scur, sep)){
 		memset(scur, 0, sepLen);
 		scur += sepLen;
 		snum++;
 	}
-	snum++;
 
 	if((strw = malloc(sizeof(TStrWrapper) + snum*sizeof(char*))) == NULL){
 		goto WRAPPER_MALLOC_FAILED;
 	}
 
-	int i;
 	for(i = 0, scur = sbuf; i < snum; i++){
 		strw->field[i] = scur;
 		scur += strlen(scur) + sepLen;
@@ -169,16 +205,57 @@ PStrWrapper wrapString(char* buf, char* sep)
 	free(strw);
 	strw = NULL;
 WRAPPER_MALLOC_FAILED:
+WRAPPER_BLOCK_FAILED:
+SEP_LENGTH_FAILED:
 	free(sbuf);
 	sbuf = NULL;
 BUFFER_MALLOC_FAILED:
+STR_ARGS_FAILED:
+	return NULL;
+}
+
+PStrWrapper findString(char* str, char* need)
+{
+	PStrWrapper strw = NULL;
+	unsigned int num = 0;
+	char** buf = NULL;
+	int i;
+	if(str == NULL || need == NULL || *str == 0 || *need == 0)
+		goto WRAPPER_ARGS_FAILED;
+
+	while(str = strstr(str, need)){
+		num++;
+		if((buf = initBuffer(buf, num * sizeof(char*))) == NULL)
+			goto WRAPPER_BUFFER_FAILED;
+
+		buf[num-1] = str++;
+	}
+
+	if((strw = malloc(sizeof(TStrWrapper) + num * sizeof(char*))) == NULL)
+		goto WRAPPER_MALLOC_FAILED;
+
+	strw->buf = (char*)buf;
+	strw->size = num*sizeof(char*);
+	strw->sep = need;
+	strw->num = num;
+	for(i = 0; i < num; i++){
+		strw->field[i] = buf[i];
+	}
+
+	return strw;
+
+	freeWrapper(strw);
+WRAPPER_MALLOC_FAILED:
+	freeBuffer(buf);
+WRAPPER_BUFFER_FAILED:
+WRAPPER_ARGS_FAILED:
 	return NULL;
 }
 
 int freeWrapper(PStrWrapper strw)
 {
 	if(strw){
-		if(strw->buf && strw->size)free(strw->buf);
+		if(strw->buf && strw->size)freeBuffer(strw->buf);
 		free(strw);
 	}
 	return 0;
@@ -313,7 +390,7 @@ char* cutString(char* str, int start, int end)
 	int slen = 0;
 	char* buf = NULL;
 
-	if(wlen == 0)return initBuffer(NULL, 0);
+	if(wlen == 0)return initBuffer(NULL, 1);
 
 	while(end < 0)end += wlen;
 	if(end == 0 || end > wlen)end = wlen + 1;
@@ -322,7 +399,7 @@ char* cutString(char* str, int start, int end)
 	if(start > wlen)start = wlen;
 
 	if((slen = end - start) < 0)return NULL;
-	if((buf = initBuffer(NULL, slen)) == NULL)return NULL;
+	if((buf = initBuffer(NULL, slen+1)) == NULL)return NULL;
 
 	memcpy(buf, str+start, slen);
 	buf[slen] = 0;
@@ -330,11 +407,12 @@ char* cutString(char* str, int start, int end)
 	return buf;
 }
 
-char* spliseString(char* str, int start, int cutlen, char* buf)
+char* spliceString(char* str, int start, int cutlen, char* buf)
 {
-	unsigned int buflen = (buf? strlen(buf): 0);
+	unsigned int buflen = 0;//(buf? strlen(buf): 0);
 	unsigned int wlen = strlen(str);
 
+	if(buf)buflen = strlen(buf);
 	//if(cutlen < 0)start += cutlen, cutlen = 0 - cutlen;
 	if(cutlen < 0 || start + cutlen > wlen)cutlen = wlen - start;
 

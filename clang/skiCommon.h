@@ -1,13 +1,5 @@
-#ifndef __UTYPES_H__
-#define __UTYPES_H__
-
-#define _LOG_DEBUG
-#ifdef _LOG_DEBUG
-	#define printf_debug(fmt, ...) do{printf("[%s][%d]"fmt, __func__, __LINE__, ##__VA_ARGS__);}while(0)
-	#define GET_TIME_SEC() ((double)(clock())/CLOCKS_PER_SEC)
-#else
-	#define printf_debug(fmt, ...)
-#endif
+#ifndef __SKICOMMON_H__
+#define __SKICOMMON_H__
 
 #ifndef uint32
 typedef unsigned int uint32;
@@ -37,11 +29,12 @@ typedef signed char sint8;
 #define NULL ((void*)0)
 #endif
 
+#define _name_var(name) #name
+#define print_var(t, var) printf("[%s:%s:%d] %s(%p) = "_name_var(t)"\n", __FILE__, __func__, __LINE__, _name_var(var), &(var), (var))
+
 #define SWAP_XOR(x,y) do{if((x) != (y))(x)=(x)^(y), (y)=(x)^(y), (x)=(x)^(y);}while(0)
 #define SWAP_TMP(x,y) do{typeof(x) _x = x; x = y; y = _x;}while(0)
 
-#define SWAP(x,y) SWAP_TMP(x,y)
-
 #define CONTAINER_OF(addr, type, name) ((type*)((unsigned long)addr - (unsigned long)(&((type*)0)->name)))
 
-#endif //utypes.h
+#endif //skiCommon.h
