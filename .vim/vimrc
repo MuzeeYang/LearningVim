@@ -103,7 +103,7 @@ augroup auto_buffer
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
 	":autocmd TextChanged,TextChangedI * :let g:LNO = -1
-	:autocmd TextYankPost * :call LetSysClib()
+	":autocmd TextYankPost * :call LetSysClib()
 augroup end
 
 "Functions
@@ -166,12 +166,6 @@ function! ReloadFile()
 		endif
 	else
 		:edit
-	endif
-endfunction
-
-function! LetSysClib()
-	if len(@") != 1
-		let @+ = @"
 	endif
 endfunction
 

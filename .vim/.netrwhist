@@ -1,9 +1,3 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =7
-let g:netrw_dirhist_1='/media/sf_Share/ZEM220/02.Branch/zm100_ZK_Smart_Key/lib/src/ucgui_linux'
-let g:netrw_dirhist_2='/media/sf_Share/ZEM220/02.Branch/zm100_ZK_Smart_Key/lib/src/sqlite'
-let g:netrw_dirhist_3='/home/dukcy/costomDir'
-let g:netrw_dirhist_4='/home/subcar/data'
-let g:netrw_dirhist_5='/home/subcar/system/mnt/mtdblock'
-let g:netrw_dirhist_6='/media/sf_Share/BioLock/HBL100/SourceCodeLibrary/01.Branches/HBL100_X1000/lib/src/commsdk'
-let g:netrw_dirhist_7='/media/sf_Share/linux-4.16/certs'
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/home/poker/workspace'

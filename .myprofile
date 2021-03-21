@@ -64,17 +64,6 @@ mcd()
 }
 
 
-proFILE=$HOME/.bashrc
-if [ -f $proFILE ];then
-	isAdded=`cat $proFILE | grep "#costom add profile" | wc -l`
-	if [ $isAdded -eq 0 ];then
-		tail -5 $(HOME)/.myprofile | head -4 >> $proFILE
-	fi
-fi
 
-if [ 0 -ne 0 ];then
-#costom add profile
-if [ -f ~/.myprofile ];then
-	. ~/.myprofile
-fi
-fi
+
+
