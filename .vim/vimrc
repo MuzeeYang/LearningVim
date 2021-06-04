@@ -1,6 +1,6 @@
 "source ~/.vim/.earthmelon.vim
 syntax on
-set mouse=a
+set mouse=n
 set hlsearch nowrapscan scrolloff=7 number smartindent tabstop=4 softtabstop=4 shiftwidth=4 "expandtab 
 set fileencodings=ucs-bom,utf-8,cp20932,cp51932,cp932,cp20936,cp51936,cp54936,cp936,cp950,latin1
 let mapleader="`"
@@ -54,11 +54,12 @@ let mapleader="`"
 :nnoremap <leader>[ <c-t> 
 
 "taglist
-:let Tlist_Auto_Open=1
+:let Tlist_Auto_Open=0
 :let Tlist_Show_One_File=1
 :let Tlist_Use_Right_Window=0
 :let Tlist_Exit_OnlyWindow=1
 :let Tlist_Process_File_Always=1
+:nnoremap <F3> :TlistToggle<cr>
 
 "switch upper/lower
 :inoremap <leader>~ <esc>viw~ea
@@ -68,6 +69,8 @@ let mapleader="`"
 :nnoremap . <c-w>7>
 :nnoremap <c-j> <c-d>
 :nnoremap <c-k> <c-u>
+:nnoremap <c-h> <c-w>h
+:nnoremap <c-l> <c-w>l
 :inoremap <c-h> <left>
 :inoremap <c-l> <right>
 :inoremap <c-j> <down>
