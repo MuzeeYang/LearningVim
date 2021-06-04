@@ -40,10 +40,10 @@ let mapleader="`"
 :set foldmethod=syntax
 :set nofoldenable
 :nnoremap <F4> :set foldenable!<cr>:set foldenable?<cr>
-:nnoremap = zo
-:nnoremap - zc
-:nnoremap + zO
-:nnoremap _ zC
+":nnoremap = zo
+":nnoremap - zc
+":nnoremap + zO
+":nnoremap _ zC
 
 "reload
 :nnoremap <F5> :call ReloadFile()<cr>
@@ -85,7 +85,7 @@ let mapleader="`"
 "status line
 set cursorline
 set laststatus=2
-set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
+"set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
 hi	user1				term=bold			cterm=bold
 hi	user1				ctermfg=white		ctermbg=red
 hi	statuslinenc		term=bold			cterm=bold
@@ -97,6 +97,8 @@ augroup colors_earthmelon
 	:autocmd!
 	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
 	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
+	:autocmd BufEnter * :call SetStsLine(1)
+	:autocmd BufLeave * :call SetStsLine(0)
 augroup end
 
 "autocmd
@@ -104,12 +106,22 @@ augroup auto_buffer
 	:autocmd!
 	:autocmd filetype c,cpp :call CLangSetting()
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
+	:autocmd bufreadpre,bufnewfile * :call SetStsLine(0)
 	:autocmd bufreadpost,bufread * :normal! '"
 	":autocmd TextChanged,TextChangedI * :let g:LNO = -1
 	":autocmd TextYankPost * :call LetSysClib()
 augroup end
 
 "Functions
+function! SetStsLine(idx)
+	"echom a:idx
+	if a:idx == 1
+		setlocal statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
+	else
+		setlocal statusline=\ %<%=%F%h%r%m\ 
+	endif
+endfunction
+
 function! TabComplete()
 	let s:lineStr = getline('.')
 	let s:posCur = col('.')
