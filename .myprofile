@@ -65,6 +65,18 @@ mcd()
 	cd $1;
 }
 
+mkproj()
+{
+	export WCSPC=$PWD;
+	cscope -Rbkq;
+}
+
+rmproj()
+{
+	export WCSPC=;
+	rm cscope.* 2> /dev/null;
+}
+
 if [ 0 -ne 0 ];then
 #costom add profile
 if [ -f ~/.myprofile ];then

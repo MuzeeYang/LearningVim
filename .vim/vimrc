@@ -34,7 +34,7 @@ let mapleader="`"
 :nnoremap <leader>P "+P
 
 "search highlight
-:vnoremap f "fy:call FindSearchItem()<cr>
+:vnoremap / "fy:call FindSearchItem()<cr>
 
 "set fold
 :set foldmethod=syntax
@@ -59,7 +59,7 @@ let mapleader="`"
 :let Tlist_Use_Right_Window=0
 :let Tlist_Exit_OnlyWindow=1
 :let Tlist_Process_File_Always=1
-:nnoremap <F3> :TlistToggle<cr>
+:nnoremap <F3> :call ToggleTaskList()<cr>
 
 "switch upper/lower
 :inoremap <leader>~ <esc>viw~ea
@@ -76,9 +76,31 @@ let mapleader="`"
 :inoremap <c-j> <down>
 :inoremap <c-k> <up>
 
+"cscope
+"search all
+vnoremap <leader>s "fy:call CscopeCmd('s')<cr>
+"search define
+vnoremap <leader>g "fy:call CscopeCmd('g')<cr>
+"search funcs called by this
+vnoremap <leader>d "fy:call CscopeCmd('d')<cr>
+"search funcs who call this
+vnoremap <leader>c "fy:call CscopeCmd('c')<cr>
+"search string
+vnoremap <leader>t "fy:call CscopeCmd('t')<cr>
+"egrep
+vnoremap <leader>e "fy:call CscopeCmd('e')<cr>
+"find and open file
+vnoremap <leader>f "fy:call CscopeCmd('f')<cr>
+"search files who include this
+vnoremap <leader>i "fy:call CscopeCmd('i')<cr>
+
+function! CscopeCmd(cmd)
+	":echom ":cs find ".a:cmd." ".@f
+	:execute ":cs find ".a:cmd." ".@f
+endfunction
+
 "others
 :nnoremap U <c-r>
-:nnoremap S cw
 :inoremap <leader><leader> `
 
 
@@ -86,19 +108,14 @@ let mapleader="`"
 set cursorline
 set laststatus=2
 "set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
-hi	user1				term=bold			cterm=bold
-hi	user1				ctermfg=white		ctermbg=red
-hi	statuslinenc		term=bold			cterm=bold
-hi	statuslinenc		ctermfg=black		ctermbg=grey
-hi	statusline			term=bold			cterm=bold
-hi	statusline			ctermfg=black		ctermbg=white
+setlocal statusline=\ %<%F%h%r%m%=\ 
 
 augroup colors_earthmelon
 	:autocmd!
 	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
 	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
 	:autocmd BufEnter * :call SetStsLine(1)
-	:autocmd BufLeave * :call SetStsLine(0)
+	:autocmd WinLeave * :call SetStsLine(0)
 augroup end
 
 "autocmd
@@ -106,20 +123,30 @@ augroup auto_buffer
 	:autocmd!
 	:autocmd filetype c,cpp :call CLangSetting()
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
-	:autocmd bufreadpre,bufnewfile * :call SetStsLine(0)
 	:autocmd bufreadpost,bufread * :normal! '"
-	":autocmd TextChanged,TextChangedI * :let g:LNO = -1
-	":autocmd TextYankPost * :call LetSysClib()
 augroup end
 
 "Functions
 function! SetStsLine(idx)
 	"echom a:idx
+	hi	user1				term=bold			cterm=bold
+	hi	user1				ctermfg=white		ctermbg=red
+	hi	user2				ctermfg=darkgray	ctermbg=gray
+	hi	statuslinenc		term=bold			cterm=bold
+	hi	statuslinenc		ctermfg=black		ctermbg=grey
+	hi	statusline			term=bold			cterm=bold
+	hi	statusline			ctermfg=black		ctermbg=white
+
 	if a:idx == 1
 		setlocal statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
 	else
-		setlocal statusline=\ %<%=%F%h%r%m\ 
+		setlocal statusline=\ %<%F%h%r%m%=\ 
 	endif
+endfunction
+
+function! ToggleTaskList()
+	:TlistToggle
+	:call SetStsLine(1)
 endfunction
 
 function! TabComplete()
@@ -190,23 +217,6 @@ function! CLangSetting()
 	"cscope
 	if has("cscope")
 		:call AddCscope()
-		nnoremap <leader>/s :cs find s <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/g :cs find g <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/d :cs find d <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/c :cs find c <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/t :cs find t <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/e :cs find e <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>/f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-		nnoremap <leader>/i :cs find i <C-R>=expand("<cfile>")<CR><CR>
-
-		nnoremap <leader>?s :scs find s <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?g :scs find g <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?d :scs find d <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?c :scs find c <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?t :scs find t <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?e :scs find e <C-R>=expand("<cword>")<CR><CR>
-		nnoremap <leader>?f :scs find f <C-R>=expand("<cfile>")<CR><CR>
-		nnoremap <leader>?i :scs find i <C-R>=expand("<cfile>")<CR><CR>
 	endif
 endfunction
 
@@ -233,18 +243,18 @@ endfunction
 
 function! UpdateCscope()
 	if has("cscope")
-		if filereadable("cscope.files")
+		if filereadable("cscope.out")
 			:cscope kill -1
-			!find . -name "*.[c|h]" > cscope.files && cscope -bkqRU -i cscope.files
+			!cscope -bkqRU
 			:call AddCscope()
 		else
-			let cscope_files=findfile("cscope.files", ".;")
-			let cscope_path=matchstr(cscope_files, ".*/")
-			if !empty(cscope_files) && filereadable(cscope_files)  
+			let cscope_db=findfile("cscope.out",".;")
+			let cscope_path=matchstr(cscope_db,".*/")
+			if !empty(cscope_db) && filereadable(cscope_db)
 				let current_path=getcwd()
 				:cscope kill -1
 				exe "chdir " cscope_path
-				exe "!find . -name \"*.[c|h]\" > " cscope_files "&& cscope -bkqRU -i " cscope_files 
+				!cscope -bkqRU
 				exe "chdir " current_path
 				:call AddCscope()
 			endif
@@ -258,5 +268,53 @@ endfunction
 iabbrev waht what
 augroup autest
 	:autocmd!
+	"Reading
+"au BufNewFile 		* :echom "BufNewFile" 		
+"au BufReadPre		* :echom "BufReadPre"
+"au BufRead			* :echom "BufRead"
+"au BufReadPost 		* :echom "BufReadPost"
+"au FileReadPre 		* :echom "FileReadPre"
+"au FileReadPost 	* :echom "FileReadPost"   
+"au FileReadCmd 		* :echom "FileReadCmd"
+"au FilterReadPre 	* :echom "FilterReadPre"   
+"au FilterReadPost 	* :echom "FilterReadPost"
+"au StdinReadPre 	* :echom "StdinReadPre"
+"au StdinReadPost 	* :echom "StdinReadPost"
+	"Writing
+"au BufWrite 		* :echom "BufWrite"
+"au BufWritePre 		* :echom "BufWritePre"
+"au BufWritePost 	* :echom "BufWritePost"
+"au BufWriteCmd 		* :echom "BufWriteCmd"
+"au FileWritePre 	* :echom "FileWritePre"
+"au FileWritePost 	* :echom "FileWritePost"
+"au FileWriteCmd 	* :echom "FileWriteCmd"
+"au FileAppendPre 	* :echom "FileAppendPre"
+"au FileAppendPost 	* :echom "FileAppendPost"
+"au FileAppendCmd 	* :echom "FileAppendCmd"
+"au FilterWritePre 	* :echom "FilterWritePre"
+"au FilterWritePost 	* :echom "FilterWritePost"
+    "Buffers
+"au BufAdd 		    * :echom "BufAdd"
+"au BufCreate 		* :echom "BufCreate"
+"au BufDelete 		* :echom "BufDelete"
+"au BufWipeout 		* :echom "BufWipeout"
+"au BufFilePre 		* :echom "BufFilePre"
+"au BufFilePost 		* :echom "BufFilePost"
+"au BufEnter 		* :echom "BufEnter"
+"au BufLeave 		* :echom "BufLeave"
+"au BufWinEnter 		* :echom "BufWinEnter"
+"au BufWinLeave 		* :echom "BufWinLeave"
+"au BufUnload 		* :echom "BufUnload"
+"au BufHidden 		* :echom "BufHidden"
+"au BufNew           * :echom "BufNew"
+"au SwapExists 		* :echom "SwapExists"
+"au WinNew			* :echom "WinNew" 
+"au TabNew			* :echom "TabNew"
+"au TabClosed		* :echom "TabClosed"
+"au WinEnter  		* :echom "WinEnter"
+"au WinLeave  		* :echom "WinLeave"
+"au TabEnter  		* :echom "TabEnter"
+"au TabLeave  		* :echom "TabLeave"
+"au CmdwinEnter		* :echom "CmdwinEnter"
+"au CmdwinLeave		* :echom "CmdwinLeave"
 augroup end
-
