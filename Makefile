@@ -8,11 +8,7 @@ install:
 	
 clean:
 	@rm ~/.vim/vimrc
-	@rm ~/.vim/syntax/c.vim
-	@rm ~/.vim/syntax/common.vim
-	@rm ~/.vim/systags
 	@rm ~/.myprofile
-	@cat ./proCache
 	@echo "remove the context under manually in [~/.bashrc] or [~/.profile]."
 
 update:

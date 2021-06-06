@@ -77,6 +77,7 @@ let mapleader="`"
 :inoremap <c-k> <up>
 
 "cscope
+vnoremap ? "fy:call CscopeCmd('s')<cr>
 "search all
 vnoremap <leader>s "fy:call CscopeCmd('s')<cr>
 "search define
@@ -108,14 +109,13 @@ endfunction
 set cursorline
 set laststatus=2
 "set statusline=%1*\ %f%h%r%m\ %*\ %<[%{&ft}][%{&ff}]%=%l,%02c%7p%%\ 
-setlocal statusline=\ %<%F%h%r%m%=\ 
 
 augroup colors_earthmelon
 	:autocmd!
 	:autocmd InsertEnter * :execute ":hi user1 ctermfg=white ctermbg=darkblue"
 	:autocmd InsertLeave * :execute ":hi user1 ctermfg=white ctermbg=red"
 	:autocmd BufEnter * :call SetStsLine(1)
-	:autocmd WinLeave * :call SetStsLine(0)
+	:autocmd WinLeave,BufReadPost * :call SetStsLine(0)
 augroup end
 
 "autocmd
@@ -133,7 +133,7 @@ function! SetStsLine(idx)
 	hi	user1				ctermfg=white		ctermbg=red
 	hi	user2				ctermfg=darkgray	ctermbg=gray
 	hi	statuslinenc		term=bold			cterm=bold
-	hi	statuslinenc		ctermfg=black		ctermbg=grey
+	hi	statuslinenc		ctermfg=darkgray	ctermbg=grey
 	hi	statusline			term=bold			cterm=bold
 	hi	statusline			ctermfg=black		ctermbg=white
 
