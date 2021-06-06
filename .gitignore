@@ -3,3 +3,4 @@
 *.py[co]
 *.swp
 *.o
+.netrwhist
