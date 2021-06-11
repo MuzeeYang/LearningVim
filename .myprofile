@@ -67,14 +67,22 @@ mcd()
 
 mkproj()
 {
-	export WCSPC=$PWD;
-	cscope -Rbkq;
+	export WKSPC=$PWD;
+	ln -s $WKSPC ~/wkspc
+	cscope -Rbkq $1;
 }
 
 rmproj()
 {
-	export WCSPC=;
-	rm cscope.* 2> /dev/null;
+	export WKSPC=;
+	rm ~/wkspc
+	rm -f cscope.* 2> /dev/null;
+}
+
+gotodocker()
+{
+	sudo docker start $1
+	sudo docker exec -it $1 /bin/bash
 }
 
 if [ 0 -ne 0 ];then

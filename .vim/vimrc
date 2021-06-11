@@ -30,8 +30,10 @@ let mapleader="`"
 
 "sys clipboard
 :vnoremap <leader>p "+p
+:vnoremap <leader>y "+y
 :nnoremap <leader>p "+p
 :nnoremap <leader>P "+P
+
 
 "search highlight
 :vnoremap / "fy:call FindSearchItem()<cr>
@@ -121,7 +123,7 @@ augroup end
 "autocmd
 augroup auto_buffer
 	:autocmd!
-	:autocmd filetype c,cpp :call CLangSetting()
+	:autocmd filetype	c,cpp :call CLangSetting()
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
@@ -131,7 +133,6 @@ function! SetStsLine(idx)
 	"echom a:idx
 	hi	user1				term=bold			cterm=bold
 	hi	user1				ctermfg=white		ctermbg=red
-	hi	user2				ctermfg=darkgray	ctermbg=gray
 	hi	statuslinenc		term=bold			cterm=bold
 	hi	statuslinenc		ctermfg=darkgray	ctermbg=grey
 	hi	statusline			term=bold			cterm=bold
@@ -318,3 +319,4 @@ augroup autest
 "au CmdwinEnter		* :echom "CmdwinEnter"
 "au CmdwinLeave		* :echom "CmdwinLeave"
 augroup end
+

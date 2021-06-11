@@ -18,7 +18,7 @@
 
 let g:colors_name="earthmelon_8"
 
-"set background=dark
+set background=dark
 
 if version > 580
     hi clear
@@ -68,7 +68,7 @@ hi	constant			ctermfg=darkred		ctermbg=black
 hi	statement			ctermfg=brown		ctermbg=black
 hi	special				ctermfg=yellow		ctermbg=black
 hi	specialkey			ctermfg=darkcyan	ctermbg=black
-hi	operator			ctermfg=lightgreen		ctermbg=black
+hi	operator			ctermfg=lightgreen	ctermbg=black
 hi	string				ctermfg=brown		ctermbg=black
 hi	number				ctermfg=red			ctermbg=black
 hi	identifier			ctermfg=darkcyan	ctermbg=black
@@ -80,6 +80,7 @@ hi	foldcolumn			ctermfg=lightblue	ctermbg=black
 hi	underlined			ctermfg=lightblue	ctermbg=black	cterm=underline
 hi	title				ctermfg=lightblue	ctermbg=black
 hi	ignore				ctermfg=lightblue	ctermbg=black
+hi  MatchParen			ctermfg=yellow		ctermbg=black	cterm=BOLD
 
 hi	directory			ctermfg=lightblue	ctermbg=black
 hi	browsesynopsis		ctermfg=lightblue	ctermbg=black
@@ -93,10 +94,10 @@ hi	browsefiletime		ctermfg=lightblue	ctermbg=black
 hi	browsesuffixes		ctermfg=lightblue	ctermbg=black
 
 "Tag
-"hi	taglistcomment		ctermfg=lightblue	ctermbg=black
-"hi	taglistfilename		ctermfg=lightblue	ctermbg=black
-"hi	taglisttitle		ctermfg=lightblue	ctermbg=black
-"hi	taglisttagscope		ctermfg=lightblue	ctermbg=black
-"hi	taglisttagname		ctermfg=lightblue	ctermbg=black
-"hi	Tag					ctermfg=LightBlue	ctermbg=Black
+hi	taglistcomment		ctermfg=lightblue	ctermbg=black
+hi	taglistfilename		ctermfg=lightblue	ctermbg=black
+hi	taglisttitle		ctermfg=lightblue	ctermbg=black
+hi	taglisttagscope		ctermfg=lightblue	ctermbg=black
+hi	taglisttagname		ctermfg=lightblue	ctermbg=black
+hi	Tag					ctermfg=LightBlue	ctermbg=Black
 

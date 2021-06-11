@@ -4,7 +4,6 @@ install:
 	@mkdir -p ~/.vim/syntax || echo ''
 	@cp -vr .vim ~
 	@cp -v ./.myprofile ~/.myprofile
-	#ctags --fields=+iaS --extra=+q -R -f ~/.vim/systags /usr/include /usr/local/include
 	
 clean:
 	@rm ~/.vim/vimrc
