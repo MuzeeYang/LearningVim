@@ -16,17 +16,6 @@
 "15		White
 
 "========================================================
-" Highlight All Function
-"========================================================
-syn match   cMacro "\<[A-Z_][A-Z_0-9]*\>"
-syn match	cType	"\<[a-zA-Z_][a-zA-Z_0-9]*_t\>"
-syn match	cType	"\<struct\s[a-zA-Z_][a-zA-Z_0-9]*\>"
-syn match   cFunction "\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
-syn match   cFunction "\<[a-zA-Z_][a-zA-Z_0-9]*\>\s\?("me=e-1
-hi cFunction				ctermfg=lightblue 
-hi cMacro					ctermfg=darkred
-
-"========================================================
 " Highlight All Math Operator
 "========================================================
 syn match		cAssignOperator	  display "="
@@ -52,7 +41,4 @@ hi link cMathOperator           Operator
 hi link cLogicalOperator        Operator
 hi link cPointerOperator        Operator
 hi link cBinaryOperator         Operator
-hi link cType					Type
 
-" recall
-hi	comment				ctermfg=darkgray	ctermbg=black

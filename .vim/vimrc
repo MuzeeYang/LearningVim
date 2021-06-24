@@ -1,4 +1,3 @@
-"source ~/.vim/.earthmelon.vim
 syntax on
 set mouse=n
 set hlsearch nowrapscan scrolloff=7 number smartindent tabstop=4 softtabstop=4 shiftwidth=4 "expandtab 
@@ -123,7 +122,8 @@ augroup end
 "autocmd
 augroup auto_buffer
 	:autocmd!
-	:autocmd filetype	c,cpp :call CLangSetting()
+	:autocmd filetype	* :source ~/.vim/syntax/common.vim
+	:autocmd filetype   c,cpp :call CLangSetting()
 	:autocmd bufreadpre,bufnewfile * :source ~/.vim/syntax/common.vim
 	:autocmd bufreadpost,bufread * :normal! '"
 augroup end
@@ -270,6 +270,7 @@ iabbrev waht what
 augroup autest
 	:autocmd!
 	"Reading
+"au filetype	* :echom "filetype"
 "au BufNewFile 		* :echom "BufNewFile" 		
 "au BufReadPre		* :echom "BufReadPre"
 "au BufRead			* :echom "BufRead"
@@ -320,3 +321,4 @@ augroup autest
 "au CmdwinLeave		* :echom "CmdwinLeave"
 augroup end
 
+"source ~/.vim/syntax/common.vim

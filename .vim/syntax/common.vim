@@ -101,3 +101,16 @@ hi	taglisttagscope		ctermfg=lightblue	ctermbg=black
 hi	taglisttagname		ctermfg=lightblue	ctermbg=black
 hi	Tag					ctermfg=LightBlue	ctermbg=Black
 
+"========================================================
+" Highlight All Function
+"========================================================
+syn match   cMacro "\<[A-Z_][A-Z_0-9]\+\>"
+syn match	cType	"\<[a-zA-Z_][a-zA-Z_0-9]*_[tT]\>"
+syn match	cType	"\<[a-zA-Z_][a-zA-Z_0-9]*_[tT]ype\>"
+"syn match	cType	"struct \<[a-zA-Z_][a-zA-Z_0-9]*\>"
+syn match   cFunction "\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
+syn match   cFunction "\<[a-zA-Z_][a-zA-Z_0-9]*\>("me=e-1
+hi cFunction				ctermfg=lightblue 
+hi cMacro					ctermfg=darkred
+hi link cType					Type
+
